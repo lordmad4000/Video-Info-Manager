@@ -288,9 +288,8 @@ public partial class FormSearch : Form
             return;
         }
 
-        List<string> sortedVideoInfoNames = videoInfoDTOs.OrderBy(c => c.Name)
-                                                         .Select(c => c.Name)
-                                                         .ToList();
+        List<VideoInfoDTO> sortedVideoInfo = videoInfoDTOs.OrderBy(c => c.Name)                                                         
+                                                          .ToList();
 
         var saveFileDialog = new SaveFileDialog();
         saveFileDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
@@ -304,9 +303,10 @@ public partial class FormSearch : Form
             {
                 using (var sw = new StreamWriter(fs))
                 {
-                    foreach (var name in sortedVideoInfoNames)
+                    foreach (var videoInfo in sortedVideoInfo)
                     {
-                        sw.WriteLine(name);
+                        string item = $"({videoInfo.Status}) {videoInfo.Name}";
+                        sw.WriteLine(item);
                     }
                 }
             }
