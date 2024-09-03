@@ -475,7 +475,7 @@ public partial class FormSearch : Form
         dgvVideoInfo.Visible = true;
     }
 
-    private void Initialize_videoInfoStatuses()
+    private void InitializeVideoInfoStatuses()
     {
         string[]? configurationStatusNames = _configuration.GetSection("StatusNames").Get<string[]>();
         var statuses = Enum.GetValues(typeof(VideoInfoStatusEnum))
@@ -554,9 +554,9 @@ public partial class FormSearch : Form
         var status = cbModifyStatus.GetItemText(cbModifyStatus.SelectedItem);
 
         if (status is null)
-            return _videoInfoStatuses[0].Status.ToString();
+            status = _videoInfoStatuses[0].Status.ToString();
 
-        return status;
+        return GetVideoInfoStatusByConfigurationName(status).StatusName;
     }
 
     private VideoInfoStatus GetVideoInfoStatusByStatus(VideoInfoStatusEnum status)
@@ -600,7 +600,7 @@ public partial class FormSearch : Form
     private void Initialize()
     {
         InitializeComponent();
-        Initialize_videoInfoStatuses();
+        InitializeVideoInfoStatuses();
         InitializeStatusComponents();
         InitializeMultipleSearchBox();
         InitializeContextMenu();
