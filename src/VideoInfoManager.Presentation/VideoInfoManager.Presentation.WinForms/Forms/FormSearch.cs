@@ -51,9 +51,9 @@ public partial class FormSearch : Form
         {
             Id = new Guid(tbModifyId.Text),
             Name = tbModifyName.Text,
-            Status = cbModifyStatus.SelectedText,
-
+            Status = GetModifySelectedStatus(),
         };
+        
         if (MessageBox.Show($"Update Data to Data Base?", "Update Data", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
         {
             if (_videoInfoAppService.Update(videoInfoDTO) == true)
@@ -517,7 +517,6 @@ public partial class FormSearch : Form
     private string[] GetVideoInfoStatusEnumNames() =>
         Enum.GetNames(typeof(VideoInfoStatusEnum)).ToArray();
 
-
     private List<VideoInfoStatusEnum> GetActiveStatus()
     {
         var activeStatus = new List<VideoInfoStatusEnum>();
@@ -548,6 +547,16 @@ public partial class FormSearch : Form
         };
 
         return videoInfoDTO;
+    }
+
+    private string GetModifySelectedStatus()
+    {
+        var status = cbModifyStatus.GetItemText(cbModifyStatus.SelectedItem);
+
+        if (status is null)
+            return _videoInfoStatuses[0].Status.ToString();
+
+        return status;
     }
 
     private VideoInfoStatus GetVideoInfoStatusByStatus(VideoInfoStatusEnum status)
