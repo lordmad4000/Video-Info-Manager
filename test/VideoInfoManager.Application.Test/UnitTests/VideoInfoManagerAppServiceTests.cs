@@ -75,7 +75,9 @@ public class VideoInfoManagerAppServiceTests
         string? text = null;
 
         // Act
+#pragma warning disable CS8604 // Posible argumento de referencia nulo
         var result = _videoInfoManagerAppService.SubstringOfString(text, 0, 10);
+#pragma warning restore CS8604 // Posible argumento de referencia nulo
 
         // Assert
         Assert.Equal(string.Empty, result);
