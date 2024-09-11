@@ -1,28 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿using System.Windows.Controls;
+using VideoInfoManager.Presentation.Wpf.Configuration;
+using VideoInfoManager.Presentation.Wpf.ViewModels;
 
-namespace VideoInfoManager.Presentation.Wpf.Views
+namespace VideoInfoManager.Presentation.Wpf.Views;
+
+public partial class VideoInfoSearchView : UserControl
 {
-    /// <summary>
-    /// Lógica de interacción para VideoInfoSearchView.xaml
-    /// </summary>
-    public partial class VideoInfoSearchView : UserControl
+    public VideoInfoSearchView()
     {
-        public VideoInfoSearchView()
-        {
-            InitializeComponent();
-        }
+        this.DataContext = ConfigureServices.GetService(typeof(VideoInfoSearchViewModel));
+        InitializeComponent();
     }
 }

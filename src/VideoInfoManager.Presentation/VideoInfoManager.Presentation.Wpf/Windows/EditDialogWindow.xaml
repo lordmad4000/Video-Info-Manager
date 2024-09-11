@@ -1,0 +1,19 @@
+﻿<Window x:Class="VideoInfoManager.Presentation.Wpf.Windows.EditDialogWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:VideoInfoManager.Presentation.Wpf.Windows"
+        mc:Ignorable="d" Closing="Window_Closing"
+        ResizeMode="NoResize"
+        Title="Edit" Height="200" Width="500">
+    <StackPanel>
+        <Label Margin="10 10 0 0" HorizontalAlignment="Left">Name</Label>
+        <TextBox Margin="10 5 10 10" Text="{Binding Path=VideoInfoName, Mode=TwoWay}"/>
+        <ComboBox Name="cbStatus" Margin="10 10 10 10" Width="200px" HorizontalAlignment="Left"/>
+        <WrapPanel HorizontalAlignment="Right" Margin="0 10 0 10">
+            <Button Margin="10 0 10 0" Padding="10 5 10 5" Content="Cancel" Click="Button_Click"/>
+            <Button Margin="10 0 10 0" Padding="10 5 10 5" Content="Save"/>
+        </WrapPanel>
+    </StackPanel>
+</Window>
