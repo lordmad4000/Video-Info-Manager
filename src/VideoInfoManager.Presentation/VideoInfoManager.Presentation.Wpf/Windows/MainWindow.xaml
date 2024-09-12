@@ -17,8 +17,8 @@
                         <RowDefinition Height="30px" />
                         <RowDefinition Height="1*" />
                     </Grid.RowDefinitions>
-                    <views:VideoInfoSearchView Grid.Row="0"></views:VideoInfoSearchView>
-                    <views:VideoInfoSearchResults x:Name="searchResults" Grid.Row="1"></views:VideoInfoSearchResults>
+                    <views:VideoInfoSearchView Grid.Row="0"/>
+                    <views:VideoInfoSearchResults x:Name="searchResults" Grid.Row="1" Margin="0 10 0 0 "/>
                 </Grid>
             </TabItem>
             <TabItem Header="Add Data" >

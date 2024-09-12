@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Windows;
 using System.Windows.Input;
 using VideoInfoManager.Application.DTOs;
 using VideoInfoManager.Presentation.Wpf.Handlers;
@@ -10,13 +11,16 @@ namespace VideoInfoManager.Presentation.Wpf.ViewModels;
 
 public class VideoInfoSearchViewModel : ViewModelBase
 {
+    private const int MinSearchLength = 3;
+
     private readonly SearchService _searchService;
     private readonly IAbstractFactory<EditDialogWindow> _editDialogWindowFactory;
 
     public VideoInfoSearchViewModel(SearchService searchService, IAbstractFactory<EditDialogWindow> editDialogWindowFactory)
     {
-        _searchService = searchService;
+        _searchService = searchService;        
         _editDialogWindowFactory = editDialogWindowFactory;
+        PasteToSearchCommand = new CommandHandler(PasteToSearch, _ => true);
         SearchCommand = new CommandHandler(Search, _ => true);
         EditCommand = new CommandHandler(Edit, _ => true);
     }
@@ -40,9 +44,15 @@ public class VideoInfoSearchViewModel : ViewModelBase
         {
             _searchText = value;
             OnPropertyChanged(nameof(SearchText));
+            if (_searchText.Length > MinSearchLength)
+            {
+                Search(new object());
+            }
+
         }
     }
 
+    public ICommand PasteToSearchCommand { get; private set; }
     public ICommand SearchCommand {  get;  private set; }
     public ICommand EditCommand { get; private set; }
 
@@ -53,6 +63,15 @@ public class VideoInfoSearchViewModel : ViewModelBase
         VideoInfoResults = new ObservableCollection<VideoInfoDTO>(_searchService.Results);
     }
 
+    private void PasteToSearch(object parameter)
+    {
+        if (Clipboard.ContainsText())
+        {
+            string clipBoardText = Clipboard.GetText();
+            SearchText = clipBoardText;
+        }
+    }
+
     private void Edit(object videoInfoRow)
     {
         var videoInfoDTO = (VideoInfoDTO) videoInfoRow;
@@ -60,8 +79,6 @@ public class VideoInfoSearchViewModel : ViewModelBase
         var search = new string[] { SearchText };
         _editDialogWindowFactory.Create()
                                 .ShowDialogWindow(videoInfoDTO.Id, videoInfoDTO.Name, videoInfoDTO.Status);
-        //_searchService.Search(search);
-        //VideoInfoResults = new ObservableCollection<VideoInfoDTO>(_searchService.Results);
     }
 
 
