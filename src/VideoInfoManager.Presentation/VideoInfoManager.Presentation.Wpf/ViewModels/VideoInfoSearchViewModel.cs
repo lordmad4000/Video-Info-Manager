@@ -1,9 +1,15 @@
-﻿using System.Collections.ObjectModel;
+﻿using Microsoft.Extensions.Configuration;
+using System.Collections.ObjectModel;
+using System.Configuration;
 using System.Windows;
 using System.Windows.Input;
 using VideoInfoManager.Application.DTOs;
+using VideoInfoManager.Application.Interfaces;
+using VideoInfoManager.Application.Models;
+using VideoInfoManager.Domain.Enums;
 using VideoInfoManager.Presentation.Wpf.Handlers;
 using VideoInfoManager.Presentation.Wpf.Helpers;
+using VideoInfoManager.Presentation.Wpf.Models;
 using VideoInfoManager.Presentation.Wpf.Services;
 using VideoInfoManager.Presentation.Wpf.Windows;
 
@@ -15,17 +21,20 @@ public class VideoInfoSearchViewModel : ViewModelBase
 
     private readonly SearchService _searchService;
     private readonly IAbstractFactory<EditDialogWindow> _editDialogWindowFactory;
+    private readonly List<string> _statuses;
 
     public VideoInfoSearchViewModel(SearchService searchService, IAbstractFactory<EditDialogWindow> editDialogWindowFactory)
     {
         _searchService = searchService;        
         _editDialogWindowFactory = editDialogWindowFactory;
+        _statuses = _searchService.VideoInfoStatuses.Select(c => c.ConfigurationName)
+                                                    .ToList();
+
         PasteToSearchCommand = new CommandHandler(PasteToSearch, _ => true);
         SearchCommand = new CommandHandler(Search, _ => true);
         EditCommand = new CommandHandler(Edit, _ => true);
     }
 
-    private string _searchText = string.Empty;
     private ObservableCollection<VideoInfoDTO> _videoInfoResults = new ObservableCollection<VideoInfoDTO>();
     public ObservableCollection<VideoInfoDTO> VideoInfoResults
     {
@@ -37,6 +46,7 @@ public class VideoInfoSearchViewModel : ViewModelBase
         }
     }                    
 
+    private string _searchText = string.Empty;
     public string SearchText
     {
         get => _searchText;
@@ -48,7 +58,6 @@ public class VideoInfoSearchViewModel : ViewModelBase
             {
                 Search(new object());
             }
-
         }
     }
 
@@ -76,11 +85,9 @@ public class VideoInfoSearchViewModel : ViewModelBase
     {
         var videoInfoDTO = (VideoInfoDTO) videoInfoRow;
 
-        var search = new string[] { SearchText };
         _editDialogWindowFactory.Create()
-                                .ShowDialogWindow(videoInfoDTO.Id, videoInfoDTO.Name, videoInfoDTO.Status);
+                                .ShowDialogWindow(videoInfoDTO.Id, videoInfoDTO.Name, videoInfoDTO.Status, _statuses);
     }
-
 
 }
 

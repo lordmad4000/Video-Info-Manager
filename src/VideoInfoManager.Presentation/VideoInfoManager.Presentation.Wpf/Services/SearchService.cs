@@ -21,7 +21,6 @@ public class SearchService
     private readonly IConfiguration _configuration;
     private readonly VideoInfoRenameConfiguration[]? _videoInfoRenameConfigurations;
 
-    public List<VideoInfoDTO> Results { get; set; } = new List<VideoInfoDTO>();
 
     public SearchService(IVideoInfoAppService videoInfoAppService, IVideoInfoManagerAppService videoInfoManagerAppService, IConfiguration configuration)
     {
@@ -29,13 +28,10 @@ public class SearchService
         _videoInfoManagerAppService = videoInfoManagerAppService;
         _configuration = configuration;
         _videoInfoRenameConfigurations = _configuration.GetSection("VideoInfoRenameConfiguration").Get<VideoInfoRenameConfiguration[]>();
-
-        Results.Add(new VideoInfoDTO { Id = Guid.NewGuid(), Name = "Pepe antonio", Status = "Pended" });
-        Results.Add(new VideoInfoDTO { Id = Guid.NewGuid(), Name = "Felipe ramiro", Status = "Deleted" });
-        Results.Add(new VideoInfoDTO { Id = Guid.NewGuid(), Name = "Samuel Federico", Status = "Backup" });
-
         InitializeVideoInfoStatuses();
     }
+    public List<VideoInfoDTO> Results { get; set; } = new List<VideoInfoDTO>();
+    public List<VideoInfoStatus> VideoInfoStatuses { get => _videoInfoStatuses; }
 
     public void Search(string[]? search, bool isVideoName = false)
     {

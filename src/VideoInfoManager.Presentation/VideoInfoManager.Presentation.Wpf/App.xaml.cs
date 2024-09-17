@@ -13,27 +13,15 @@ public partial class App : System.Windows.Application
     public App()
     {
         AppHost = Host.CreateDefaultBuilder()
-            .ConfigureServices((hostContext, services) =>
-            {
-                services.AddDbContext()
-                        .AddConfiguration()
-                        .AddServices()
-                        .AddWindowFactory<EditDialogWindow>()
-                        .BuildServiceProvider().DataBaseEnsureCreated();
-            })
-            .Build();
-
-        //var services = new ServiceCollection();
-        //ConfigureServices.AddDbContext(services);
-        //ConfigureServices.AddConfiguration(services);
-        //ConfigureServices.AddServices(services);
-
-        //using (ServiceProvider serviceProvider = services.BuildServiceProvider())
-        //{
-        //    ConfigureServices.DataBaseEnsureCreated(serviceProvider);
-        //    var mainWindow = serviceProvider.GetRequiredService<MainWindow>();
-        //    app.Run(mainWindow);
-        //}
+                      .ConfigureServices((hostContext, services) =>
+                      {
+                          services.AddDbContext()
+                                  .AddConfiguration()
+                                  .AddServices()
+                                  .BuildServiceProvider()
+                                  .DataBaseEnsureCreated();
+                      })
+                      .Build();
     }
 
     protected override async void OnStartup(StartupEventArgs e)

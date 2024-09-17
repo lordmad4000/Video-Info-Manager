@@ -2,7 +2,9 @@
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using VideoInfoManager.Presentation.Wpf.Configuration;
 using VideoInfoManager.Presentation.Wpf.Helpers;
+using VideoInfoManager.Presentation.Wpf.ViewModels;
 
 namespace VideoInfoManager.Presentation.Wpf.Windows
 {
@@ -11,8 +13,11 @@ namespace VideoInfoManager.Presentation.Wpf.Windows
     /// </summary>
     public partial class MainWindow : Window
     {
+        private readonly MainWindowViewModel? _mainWindowViewModel;
         public MainWindow()
         {
+            _mainWindowViewModel = ConfigureServices.GetService<MainWindowViewModel>();
+            this.DataContext = _mainWindowViewModel;
             InitializeComponent();
             InitializeWindow();
         }

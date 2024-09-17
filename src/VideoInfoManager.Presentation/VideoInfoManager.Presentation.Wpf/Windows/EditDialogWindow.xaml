@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:VideoInfoManager.Presentation.Wpf.Windows"
         mc:Ignorable="d" Closing="Window_Closing"
-        ResizeMode="NoResize"
+        ResizeMode="NoResize"        
         Title="Edit" Height="200" Width="500">
     <StackPanel>
         <Label Margin="10 10 0 0" HorizontalAlignment="Left">Name</Label>

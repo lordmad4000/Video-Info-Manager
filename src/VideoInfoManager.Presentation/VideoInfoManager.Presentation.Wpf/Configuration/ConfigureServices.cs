@@ -67,17 +67,16 @@ public static class ConfigureServices
 
     public static IServiceCollection AddServices(this IServiceCollection services)
     {
-        services.AddSingleton<MainWindow>();
-//        services.AddSingleton<EditDialogWindow>();
-        services.AddSingleton<SearchService>();
-        services.AddTransient<IVideoInfoAppService, VideoInfoAppService>();
-        services.AddTransient<IVideoInfoManagerAppService, VideoInfoManagerAppService>();
-        services.AddTransient<IVideoInfoRepository, VideoInfoRepository>();
-        services.AddSingleton<VideoInfoSearchView>();
-        services.AddSingleton<VideoInfoSearchViewModel>();
-
-        return services;
-    }
+        return services.AddSingleton<MainWindow>()
+                       .AddWindowFactory<EditDialogWindow>()
+                       .AddSingleton<SearchService>()
+                       .AddTransient<IVideoInfoAppService, VideoInfoAppService>()
+                       .AddTransient<IVideoInfoManagerAppService, VideoInfoManagerAppService>()
+                       .AddTransient<IVideoInfoRepository, VideoInfoRepository>()
+                       .AddSingleton<MainWindowViewModel>()
+                       .AddSingleton<VideoInfoSearchView>()
+                       .AddSingleton<VideoInfoSearchViewModel>();
+   }
 
     public static IServiceCollection AddWindowFactory<TWindow> (this IServiceCollection services)
         where TWindow : class
