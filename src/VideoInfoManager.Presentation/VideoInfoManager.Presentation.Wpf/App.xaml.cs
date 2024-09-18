@@ -3,6 +3,8 @@ using Microsoft.Extensions.Hosting;
 using System.Windows;
 using VideoInfoManager.Presentation.Wpf.Configuration;
 using VideoInfoManager.Presentation.Wpf.Windows;
+using VideoInfoManager.Presentation.CrossCutting.Extensions;
+using VideoInfoManager.Presentation.Wpf.ViewModels;
 
 namespace VideoInfoManager.Presentation.Wpf;
 
@@ -15,11 +17,16 @@ public partial class App : System.Windows.Application
         AppHost = Host.CreateDefaultBuilder()
                       .ConfigureServices((hostContext, services) =>
                       {
-                          services.AddDbContext()
-                                  .AddConfiguration()
-                                  .AddServices()
-                                  .BuildServiceProvider()
-                                  .DataBaseEnsureCreated();
+                          var serviceProvider = services.AddPresentationCrosscuttingServices()
+                                                        .AddApplicationServices()
+                                                        .AddInfraServices()
+                                                        .AddDbContext()
+                                                        .AddConfiguration()
+                                                        .AddServices()
+                                                        .BuildServiceProvider()
+                                                        .DataBaseEnsureCreated();
+
+                          VideoInfoSearchViewModel? _videoInfoSearchViewModel = serviceProvider.GetService<VideoInfoSearchViewModel>();
                       })
                       .Build();
     }

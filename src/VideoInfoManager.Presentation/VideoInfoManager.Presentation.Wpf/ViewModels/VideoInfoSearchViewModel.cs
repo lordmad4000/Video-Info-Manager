@@ -1,16 +1,10 @@
-﻿using Microsoft.Extensions.Configuration;
-using System.Collections.ObjectModel;
-using System.Configuration;
+﻿using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
 using VideoInfoManager.Application.DTOs;
-using VideoInfoManager.Application.Interfaces;
-using VideoInfoManager.Application.Models;
-using VideoInfoManager.Domain.Enums;
+using VideoInfoManager.Presentation.CrossCutting.Services;
 using VideoInfoManager.Presentation.Wpf.Handlers;
 using VideoInfoManager.Presentation.Wpf.Helpers;
-using VideoInfoManager.Presentation.Wpf.Models;
-using VideoInfoManager.Presentation.Wpf.Services;
 using VideoInfoManager.Presentation.Wpf.Windows;
 
 namespace VideoInfoManager.Presentation.Wpf.ViewModels;
@@ -19,16 +13,18 @@ public class VideoInfoSearchViewModel : ViewModelBase
 {
     private const int MinSearchLength = 3;
 
-    private readonly SearchService _searchService;
+    private readonly IVideoInfoManagerPresentationAppService _videoInfoManagerPresentationAppService;
     private readonly IAbstractFactory<EditDialogWindow> _editDialogWindowFactory;
+    private readonly MainWindowViewModel _mainWindowViewModel;
     private readonly List<string> _statuses;
 
-    public VideoInfoSearchViewModel(SearchService searchService, IAbstractFactory<EditDialogWindow> editDialogWindowFactory)
+    public VideoInfoSearchViewModel(IVideoInfoManagerPresentationAppService videoInfoManagerPresentationAppService, IAbstractFactory<EditDialogWindow> editDialogWindowFactory, MainWindowViewModel mainWindowViewModel)
     {
-        _searchService = searchService;        
+        _videoInfoManagerPresentationAppService = videoInfoManagerPresentationAppService;        
         _editDialogWindowFactory = editDialogWindowFactory;
-        _statuses = _searchService.VideoInfoStatuses.Select(c => c.ConfigurationName)
-                                                    .ToList();
+        _mainWindowViewModel = mainWindowViewModel;
+        _statuses = _videoInfoManagerPresentationAppService.GetVideoInfoStatuses().Select(c => c.ConfigurationName)
+                                                           .ToList();
 
         PasteToSearchCommand = new CommandHandler(PasteToSearch, _ => true);
         SearchCommand = new CommandHandler(Search, _ => true);
@@ -68,8 +64,8 @@ public class VideoInfoSearchViewModel : ViewModelBase
     private void Search(object parameter)
     {
         var search = new string[] { SearchText };
-        _searchService.Search(search);
-        VideoInfoResults = new ObservableCollection<VideoInfoDTO>(_searchService.Results);
+        _videoInfoManagerPresentationAppService.Search(search);
+        VideoInfoResults = new ObservableCollection<VideoInfoDTO>(_videoInfoManagerPresentationAppService.GetResults());
     }
 
     private void PasteToSearch(object parameter)
@@ -85,8 +81,21 @@ public class VideoInfoSearchViewModel : ViewModelBase
     {
         var videoInfoDTO = (VideoInfoDTO) videoInfoRow;
 
-        _editDialogWindowFactory.Create()
-                                .ShowDialogWindow(videoInfoDTO.Id, videoInfoDTO.Name, videoInfoDTO.Status, _statuses);
+        int updated = _editDialogWindowFactory.Create()
+                                              .ShowDialogWindow(videoInfoDTO.Id, videoInfoDTO.Name, videoInfoDTO.Status, _statuses);
+
+        _mainWindowViewModel.StatusBarText = updated switch
+        {
+            0 => $"Failed to Update {videoInfoDTO.Name}",
+            1 => $"{videoInfoDTO.Name} Updated",
+            _ => $"Edit canceled"
+        };
+
+        if (updated == 1)
+        {
+            _videoInfoManagerPresentationAppService.LastSearch(true);
+            VideoInfoResults = new ObservableCollection<VideoInfoDTO>(_videoInfoManagerPresentationAppService.GetResults());
+        }
     }
 
 }

@@ -3,18 +3,21 @@ using VideoInfoManager.Application.DTOs;
 using VideoInfoManager.Application.Interfaces;
 using VideoInfoManager.Application.Models;
 using VideoInfoManager.Domain.Enums;
-using VideoInfoManager.Presentation.Wpf.Models;
+using VideoInfoManager.Presentation.CrossCutting.Models;
 
-namespace VideoInfoManager.Presentation.Wpf.Services;
+namespace VideoInfoManager.Presentation.CrossCutting.Services;
 
-public class SearchService
+
+public class VideoInfoManagerPresentationAppService : IVideoInfoManagerPresentationAppService
 {
+
     private const int MinSearchLength = 3;
 
     private List<VideoInfoStatus> _videoInfoStatuses = new List<VideoInfoStatus>();
     private string[]? _lastSearch { get; set; } = null;
     private IEnumerable<VideoInfoDTO>? _lastSearchData { get; set; } = null;
     private VideoInfoDTO? _videoInfoSelected { get; set; } = null;
+    private List<VideoInfoDTO> _results = new List<VideoInfoDTO>();
 
     private readonly IVideoInfoAppService _videoInfoAppService;
     private readonly IVideoInfoManagerAppService _videoInfoManagerAppService;
@@ -22,7 +25,7 @@ public class SearchService
     private readonly VideoInfoRenameConfiguration[]? _videoInfoRenameConfigurations;
 
 
-    public SearchService(IVideoInfoAppService videoInfoAppService, IVideoInfoManagerAppService videoInfoManagerAppService, IConfiguration configuration)
+    public VideoInfoManagerPresentationAppService(IVideoInfoAppService videoInfoAppService, IVideoInfoManagerAppService videoInfoManagerAppService, IConfiguration configuration)
     {
         _videoInfoAppService = videoInfoAppService;
         _videoInfoManagerAppService = videoInfoManagerAppService;
@@ -30,9 +33,10 @@ public class SearchService
         _videoInfoRenameConfigurations = _configuration.GetSection("VideoInfoRenameConfiguration").Get<VideoInfoRenameConfiguration[]>();
         InitializeVideoInfoStatuses();
     }
-    public List<VideoInfoDTO> Results { get; set; } = new List<VideoInfoDTO>();
-    public List<VideoInfoStatus> VideoInfoStatuses { get => _videoInfoStatuses; }
 
+    public List<VideoInfoStatus> GetVideoInfoStatuses() => _videoInfoStatuses;
+    public List<VideoInfoDTO> GetResults() => _results;
+    public void LastSearch(bool isVideoName = false) => Search(_lastSearch, isVideoName);
     public void Search(string[]? search, bool isVideoName = false)
     {
         if (search is null || search.Count() == 0)
@@ -62,8 +66,15 @@ public class SearchService
                                                              .ThenByDescending(c => c.Status));
             }
 
-            Results = GetVideoInfoWithConfigurationNames(videoInforSearchList).ToList();
+            _results = GetVideoInfoWithConfigurationNames(videoInforSearchList).ToList();
         }
+    }
+
+    public bool Update(VideoInfoDTO videoInfoDTO)
+    {
+        videoInfoDTO.Status = GetVideoInfoStatusByConfigurationName(videoInfoDTO.Status).StatusName;
+
+        return _videoInfoAppService.Update(videoInfoDTO);
     }
 
     private IEnumerable<VideoInfoDTO> GetVideoInfoWithConfigurationNames(IEnumerable<VideoInfoDTO> videoInfoDTOs)
@@ -132,5 +143,15 @@ public class SearchService
 
         return videoinfoStatus;
     }
+
+    private VideoInfoStatus GetVideoInfoStatusByConfigurationName(string configurationName)
+    {
+        VideoInfoStatus? videoinfoStatus = _videoInfoStatuses.FirstOrDefault(c => c.ConfigurationName.Equals(configurationName));
+        if (videoinfoStatus is null)
+            return new VideoInfoStatus();
+
+        return videoinfoStatus;
+    }
+
 
 }

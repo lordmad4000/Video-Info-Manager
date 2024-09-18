@@ -14,7 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.4" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
@@ -30,6 +29,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\VideoInfoManager.Application\VideoInfoManager.Application.csproj" />
     <ProjectReference Include="..\..\VideoInfoManager.Infra\VideoInfoManager.Infra.csproj" />
+    <ProjectReference Include="..\VideoInfoManager.Presentation.Crosscutting\VideoInfoManager.Presentation.Crosscutting.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -2,7 +2,7 @@
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using VideoInfoManager.Presentation.Wpf.Configuration;
+using VideoInfoManager.Presentation.CrossCutting.Extensions;
 using VideoInfoManager.Presentation.Wpf.Helpers;
 using VideoInfoManager.Presentation.Wpf.ViewModels;
 
@@ -16,7 +16,7 @@ namespace VideoInfoManager.Presentation.Wpf.Windows
         private readonly MainWindowViewModel? _mainWindowViewModel;
         public MainWindow()
         {
-            _mainWindowViewModel = ConfigureServices.GetService<MainWindowViewModel>();
+            _mainWindowViewModel = DependencyInjectionExtensions.GetService<MainWindowViewModel>();
             this.DataContext = _mainWindowViewModel;
             InitializeComponent();
             InitializeWindow();

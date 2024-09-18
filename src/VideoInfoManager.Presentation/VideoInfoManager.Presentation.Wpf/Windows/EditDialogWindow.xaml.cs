@@ -1,10 +1,11 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using VideoInfoManager.Presentation.Wpf.Configuration;
+using VideoInfoManager.Application.DTOs;
+using VideoInfoManager.Presentation.CrossCutting.Extensions;
+using VideoInfoManager.Presentation.CrossCutting.Services;
 using VideoInfoManager.Presentation.Wpf.Helpers;
 using VideoInfoManager.Presentation.Wpf.ViewModels;
 
@@ -13,10 +14,13 @@ namespace VideoInfoManager.Presentation.Wpf.Windows;
 public partial class EditDialogWindow : Window, INotifyPropertyChanged
 {
     private readonly MainWindowViewModel? _mainWindowViewModel;
+    private readonly IVideoInfoManagerPresentationAppService? _videoInfoManagerPresentationAppService;
+    private int _result = -1;
 
     public EditDialogWindow()
     {
-        _mainWindowViewModel = ConfigureServices.GetService<MainWindowViewModel>();
+        _mainWindowViewModel = DependencyInjectionExtensions.GetService<MainWindowViewModel>();
+        _videoInfoManagerPresentationAppService = DependencyInjectionExtensions.GetService<IVideoInfoManagerPresentationAppService>();
         InitializeComponent();
         var icon = IconExtractor.Extract("shell32.dll", 218, true);
         ImageSource imageSource = Imaging.CreateBitmapSourceFromHIcon(icon.Handle, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
@@ -33,7 +37,7 @@ public partial class EditDialogWindow : Window, INotifyPropertyChanged
 
     private string _videoInfoName = string.Empty;
     public Guid VideoInfoId { get; set; }
-    public List<string> VideoInfoStatuses{ get; set; } = new List<string>();
+    public List<string> VideoInfoStatuses { get; set; } = new List<string>();
     public string VideoInfoSelectedStatus { get; set; } = string.Empty;
     public string VideoInfoName
     {
@@ -45,7 +49,7 @@ public partial class EditDialogWindow : Window, INotifyPropertyChanged
         }
     }
 
-    public void ShowDialogWindow(Guid id, string name, string selectedStatus, List<string> statuses)
+    public int ShowDialogWindow(Guid id, string name, string selectedStatus, List<string> statuses)
     {
         VideoInfoId = id;
         VideoInfoName = name;
@@ -59,6 +63,8 @@ public partial class EditDialogWindow : Window, INotifyPropertyChanged
         }
 
         this.ShowDialog();
+
+        return _result;
     }
 
     private void CenterPosition(double parentLeft, double parentTop, double parentWidth, double parentHeight)
@@ -72,8 +78,34 @@ public partial class EditDialogWindow : Window, INotifyPropertyChanged
         //e.Cancel = true;
     }
 
-    private void Button_Click(object sender, RoutedEventArgs e)
+    private void ButtonCancel_Click(object sender, RoutedEventArgs e)
     {
-        VideoInfoName = "Antonio";
+        this.Close();
+    }
+
+    private void ButtonSave_Click(object sender, RoutedEventArgs e)
+    {
+        var videoInfoDTO = new VideoInfoDTO
+        {
+            Id = VideoInfoId,
+            Name = VideoInfoName,
+            Status = VideoInfoSelectedStatus,
+        };
+
+        if (MessageBox.Show($"Update Data to Data Base?", "Update Data", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No)
+        {
+            return;
+        }
+
+        if (_videoInfoManagerPresentationAppService?.Update(videoInfoDTO) == true)
+        {
+            _result = 1;
+        }
+        else
+        {
+            _result = 0;
+        }
+
+        this.Close();
     }
 }

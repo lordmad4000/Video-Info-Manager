@@ -1,6 +1,6 @@
 ﻿using VideoInfoManager.Domain.Enums;
 
-namespace VideoInfoManager.Presentation.Wpf.Models;
+namespace VideoInfoManager.Presentation.CrossCutting.Models;
 
 public class VideoInfoStatus
 {

@@ -14,7 +14,12 @@
         Top="{Binding Top, Mode=TwoWay}"
         Left="{Binding Left, Mode=TwoWay}"        
         Loaded="WindowLoaded">
-    <Grid>
+    <DockPanel>
+        <StatusBar DockPanel.Dock="Bottom">
+            <StatusBarItem>
+                <TextBlock Text="{Binding StatusBarText}"/>
+            </StatusBarItem>
+        </StatusBar>
         <TabControl>
             <TabItem Header="Search">
                 <Grid Background="White">
@@ -29,5 +34,5 @@
             <TabItem Header="Add Data" >
             </TabItem>
         </TabControl>
-    </Grid>
+    </DockPanel>
 </Window>
