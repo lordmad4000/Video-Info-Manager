@@ -1,4 +1,5 @@
 ﻿using VideoInfoManager.Application.DTOs;
+using VideoInfoManager.Domain.Enums;
 using VideoInfoManager.Presentation.CrossCutting.Models;
 
 namespace VideoInfoManager.Presentation.CrossCutting.Services
@@ -7,8 +8,8 @@ namespace VideoInfoManager.Presentation.CrossCutting.Services
     {
         List<VideoInfoStatus> GetVideoInfoStatuses();
         List<VideoInfoDTO> GetResults();
-        void LastSearch(bool isVideoName = false);
-        void Search(string[]? search, bool isVideoName = false);
+        void LastSearch(List<VideoInfoStatusEnum> videoInfoActiveStatuses, bool isVideoName = false);
+        void Search(string[]? search, List<VideoInfoStatusEnum> videoInfoActiveStatuses, bool isVideoName = false);
         bool Update(VideoInfoDTO videoInfoDTO);
     }
 }

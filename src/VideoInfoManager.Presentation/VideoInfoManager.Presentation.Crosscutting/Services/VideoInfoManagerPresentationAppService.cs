@@ -36,8 +36,8 @@ public class VideoInfoManagerPresentationAppService : IVideoInfoManagerPresentat
 
     public List<VideoInfoStatus> GetVideoInfoStatuses() => _videoInfoStatuses;
     public List<VideoInfoDTO> GetResults() => _results;
-    public void LastSearch(bool isVideoName = false) => Search(_lastSearch, isVideoName);
-    public void Search(string[]? search, bool isVideoName = false)
+    public void LastSearch(List<VideoInfoStatusEnum> videoInfoActiveStatuses, bool isVideoName = false) => Search(_lastSearch, videoInfoActiveStatuses, isVideoName);
+    public void Search(string[]? search, List<VideoInfoStatusEnum> videoInfoActiveStatuses, bool isVideoName = false)
     {
         if (search is null || search.Count() == 0)
             return;
@@ -49,8 +49,9 @@ public class VideoInfoManagerPresentationAppService : IVideoInfoManagerPresentat
 
         if (_lastSearchData is not null)
         {
-            //var data = _lastSearchData.Where(c => GetActiveStatus().Contains(c.StatusToVideoInfoStatusEnum())).ToList();
-            var data = _lastSearchData.ToList();
+            var data = _lastSearchData.Where(c => videoInfoActiveStatuses.Contains(c.StatusToVideoInfoStatusEnum()))
+                                      .ToList();
+            //var data = _lastSearchData.ToList();
             var multipleAuthors = data.Where(c => _videoInfoManagerAppService.IsMultipleAuthor(c.Name, _videoInfoRenameConfigurations));
             var singleAuthor = data.Where(c => _videoInfoManagerAppService.IsMultipleAuthor(c.Name, _videoInfoRenameConfigurations) is false);
             var videoInforSearchList = new List<VideoInfoDTO>();

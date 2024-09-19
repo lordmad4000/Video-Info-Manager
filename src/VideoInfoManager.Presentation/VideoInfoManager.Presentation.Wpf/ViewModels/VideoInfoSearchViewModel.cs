@@ -1,7 +1,9 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
 using VideoInfoManager.Application.DTOs;
+using VideoInfoManager.Domain.Enums;
 using VideoInfoManager.Presentation.CrossCutting.Services;
 using VideoInfoManager.Presentation.Wpf.Handlers;
 using VideoInfoManager.Presentation.Wpf.Helpers;
@@ -25,13 +27,15 @@ public class VideoInfoSearchViewModel : ViewModelBase
         _mainWindowViewModel = mainWindowViewModel;
         _statuses = _videoInfoManagerPresentationAppService.GetVideoInfoStatuses().Select(c => c.ConfigurationName)
                                                            .ToList();
+        
+        InitializeStatusCheckBoxes();
+        InititalizeCommands();
+    }    
 
-        PasteToSearchCommand = new CommandHandler(PasteToSearch, _ => true);
-        SearchCommand = new CommandHandler(Search, _ => true);
-        EditCommand = new CommandHandler(Edit, _ => true);
-    }
-
+    public StatusCheckBoxesViewModel StatusCheckBoxes { get; set; } = new StatusCheckBoxesViewModel();
+    public StatusCheckBoxesViewModel _statusCheckBoxes = new StatusCheckBoxesViewModel();
     private ObservableCollection<VideoInfoDTO> _videoInfoResults = new ObservableCollection<VideoInfoDTO>();
+
     public ObservableCollection<VideoInfoDTO> VideoInfoResults
     {
         get => _videoInfoResults;
@@ -57,14 +61,14 @@ public class VideoInfoSearchViewModel : ViewModelBase
         }
     }
 
-    public ICommand PasteToSearchCommand { get; private set; }
-    public ICommand SearchCommand {  get;  private set; }
-    public ICommand EditCommand { get; private set; }
+    public ICommand PasteToSearchCommand { get; private set; } = new CommandHandler(c => c.ToString(), _ => true); 
+    public ICommand SearchCommand {  get;  private set; } = new CommandHandler(c => c.ToString(), _ => true);
+    public ICommand EditCommand { get; private set; } = new CommandHandler(c => c.ToString(), _ => true);
 
     private void Search(object parameter)
     {
         var search = new string[] { SearchText };
-        _videoInfoManagerPresentationAppService.Search(search);
+        _videoInfoManagerPresentationAppService.Search(search, GetActiveStatus());
         VideoInfoResults = new ObservableCollection<VideoInfoDTO>(_videoInfoManagerPresentationAppService.GetResults());
     }
 
@@ -93,7 +97,53 @@ public class VideoInfoSearchViewModel : ViewModelBase
 
         if (updated == 1)
         {
-            _videoInfoManagerPresentationAppService.LastSearch(true);
+            _videoInfoManagerPresentationAppService.LastSearch(GetActiveStatus(), true);
+            VideoInfoResults = new ObservableCollection<VideoInfoDTO>(_videoInfoManagerPresentationAppService.GetResults());
+        }
+    }
+
+    private List<VideoInfoStatusEnum> GetActiveStatus()
+    {
+        var activeStatus = new List<VideoInfoStatusEnum>();
+        if (this.StatusCheckBoxes.PendedIsChecked) activeStatus.Add(VideoInfoStatusEnum.Pended);
+        if (this.StatusCheckBoxes.SavedIsChecked) activeStatus.Add(VideoInfoStatusEnum.Saved);
+        if (this.StatusCheckBoxes.BackupedIsChecked) activeStatus.Add(VideoInfoStatusEnum.Backuped);
+        if (this.StatusCheckBoxes.DeletedIsChecked) activeStatus.Add(VideoInfoStatusEnum.Deleted);
+        if (this.StatusCheckBoxes.LowedIsChecked) activeStatus.Add(VideoInfoStatusEnum.Lowed);
+
+        return activeStatus;
+    }
+
+    private void InitializeStatusCheckBoxes()
+    {
+        this.StatusCheckBoxes = new StatusCheckBoxesViewModel();
+
+        this.StatusCheckBoxes.PropertyChanged += StatusCheckBoxesViewModel_PropertyChanged;
+
+        this.StatusCheckBoxes.PendedContent = _videoInfoManagerPresentationAppService.GetVideoInfoStatuses()[0].ConfigurationName;
+        this.StatusCheckBoxes.SavedContent = _videoInfoManagerPresentationAppService.GetVideoInfoStatuses()[1].ConfigurationName; ;
+        this.StatusCheckBoxes.BackupedContent = _videoInfoManagerPresentationAppService.GetVideoInfoStatuses()[2].ConfigurationName;;
+        this.StatusCheckBoxes.DeletedContent = _videoInfoManagerPresentationAppService.GetVideoInfoStatuses()[3].ConfigurationName;;
+        this.StatusCheckBoxes.LowedContent = _videoInfoManagerPresentationAppService.GetVideoInfoStatuses()[4].ConfigurationName;;
+        this.StatusCheckBoxes.PendedIsChecked = true;
+        this.StatusCheckBoxes.SavedIsChecked = true;
+        this.StatusCheckBoxes.BackupedIsChecked = true;
+        this.StatusCheckBoxes.DeletedIsChecked = true;
+        this.StatusCheckBoxes.LowedIsChecked = true;
+    }
+
+    private void InititalizeCommands()
+    {
+        PasteToSearchCommand = new CommandHandler(PasteToSearch, _ => true);
+        SearchCommand = new CommandHandler(Search, _ => true);
+        EditCommand = new CommandHandler(Edit, _ => true);
+    }
+
+    private void StatusCheckBoxesViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is not null && e.PropertyName.Contains("IsChecked"))
+        {
+            _videoInfoManagerPresentationAppService.LastSearch(GetActiveStatus(), true);
             VideoInfoResults = new ObservableCollection<VideoInfoDTO>(_videoInfoManagerPresentationAppService.GetResults());
         }
     }
