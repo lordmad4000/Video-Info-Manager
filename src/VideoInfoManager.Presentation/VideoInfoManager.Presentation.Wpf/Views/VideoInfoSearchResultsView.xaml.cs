@@ -4,10 +4,10 @@ using VideoInfoManager.Presentation.Wpf.ViewModels;
 
 namespace VideoInfoManager.Presentation.Wpf.Views;
 
-public partial class VideoInfoSearchResults : UserControl
+public partial class VideoInfoSearchResultsView : UserControl
 {
     private readonly VideoInfoSearchViewModel? _videoInfoSearchViewModel;
-    public VideoInfoSearchResults()
+    public VideoInfoSearchResultsView()
     {
         _videoInfoSearchViewModel = DependencyInjectionExtensions.GetService<VideoInfoSearchViewModel>();
         this.DataContext = _videoInfoSearchViewModel;

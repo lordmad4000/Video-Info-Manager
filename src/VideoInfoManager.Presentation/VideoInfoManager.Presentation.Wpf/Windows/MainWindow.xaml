@@ -50,11 +50,12 @@
                                 <views:VideoInfoSearchStatusView/>
                             </Border>
                             <Border Grid.Row="1">
-                                <views:VideoInfoSearchResults x:Name="searchResults"/>
+                                <views:VideoInfoSearchResultsView/>
                             </Border>
                         </Grid>
                     </TabItem>
                     <TabItem Header="Add Data" >
+                        <views:VideoInfoAddDataView/>
                     </TabItem>
                 </TabControl>
             </Border>

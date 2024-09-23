@@ -26,9 +26,14 @@ public static class ConfigureServices
         return services.AddSingleton<MainWindow>()
                        .AddWindowFactory<EditDialogWindow>()
                        .AddSingleton<MainWindowViewModel>()
-                       .AddSingleton<VideoInfoSearchView>()
-                       .AddSingleton<VideoInfoSearchViewModel>();
-   }
+                       .AddSingleton<StatusCheckBoxesViewModel>()
+                       .AddSingleton<VideoInfoAddDataViewModel>()
+                       .AddSingleton<VideoInfoSearchViewModel>()
+                       .AddSingleton<VideoInfoAddDataView>()
+                       .AddSingleton<VideoInfoSearchResultsView>()
+                       .AddSingleton<VideoInfoSearchStatusView>()
+                       .AddSingleton<VideoInfoSearchView>();
+    }
 
     public static IServiceCollection AddWindowFactory<TWindow> (this IServiceCollection services)
         where TWindow : class

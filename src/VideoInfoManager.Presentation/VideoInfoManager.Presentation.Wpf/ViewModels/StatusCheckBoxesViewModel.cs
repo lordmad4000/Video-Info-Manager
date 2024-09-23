@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-
-namespace VideoInfoManager.Presentation.Wpf.ViewModels;
+﻿namespace VideoInfoManager.Presentation.Wpf.ViewModels;
 
 public class StatusCheckBoxesViewModel : ViewModelBase
 {

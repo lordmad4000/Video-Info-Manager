@@ -39,6 +39,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Views\VideoInfoAddDataView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Views\VideoInfoSearchStatusView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -48,6 +51,12 @@
     <None Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Views\VideoInfoAddDataView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
 
 </Project>
