@@ -45,7 +45,7 @@ public class VideoInfoManagerPresentationAppService : IVideoInfoManagerPresentat
         _lastSearch = search;
         _lastSearchData = isVideoName == true
                      ? _videoInfoManagerAppService.GetManyVideoInfo(search, _videoInfoRenameConfigurations)
-                     : _videoInfoAppService.GetManyContains(search[0]);
+                     : _videoInfoAppService.GetManyContainsNameList(search.ToList());
 
         if (_lastSearchData is not null)
         {

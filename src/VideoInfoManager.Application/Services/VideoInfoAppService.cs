@@ -4,6 +4,7 @@ using VideoInfoManager.Application.Interfaces;
 using VideoInfoManager.Domain.Enums;
 using VideoInfoManager.Domain.Interfaces;
 using VideoInfoManager.Domain.Models;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace VideoInfoManager.Application.Services;
 
@@ -139,10 +140,13 @@ public class VideoInfoAppService : IVideoInfoAppService
         var videosInfoDTO = new List<VideoInfoDTO>();
         foreach (var name in nameList)
         {
-            var videosInfo = _videoInfoRepository.GetManyContains(name);
-            if (videosInfo != null)
+            if (String.IsNullOrEmpty(name) is false)
             {
-                videosInfoDTO.AddRange(VideoInfoDTO.Map(videosInfo));
+                var videosInfo = _videoInfoRepository.GetManyContains(name.Trim());
+                if (videosInfo != null)
+                {
+                    videosInfoDTO.AddRange(VideoInfoDTO.Map(videosInfo));
+                }
             }
         }
 
@@ -155,7 +159,7 @@ public class VideoInfoAppService : IVideoInfoAppService
         VideoInfo? videoInfo = _videoInfoRepository.Remove(id);
         if (videoInfo is not null)
         {
-            result = _videoInfoRepository.SaveChanges() == 1;           
+            result = _videoInfoRepository.SaveChanges() == 1;
             SaveLog($"-(Removed {videoInfo.Name}");
         }
 

@@ -16,7 +16,7 @@
     <Grid>
         <DataGrid Name="dgSearchResults" AutoGenerateColumns="False" CanUserDeleteRows="False" CanUserAddRows="False" IsReadOnly="True" ItemsSource="{Binding VideoInfoResults}">
             <DataGrid.Columns>
-                <DataGridTextColumn Width="1.2*" Header="Status" Binding="{Binding Status}" >
+                <DataGridTextColumn Width="1.3*" Header="Status" Binding="{Binding Status}" >
                     <DataGridTextColumn.CellStyle>
                         <Style TargetType="DataGridCell">
                             <Setter Property="ToolTip" Value="{Binding Status}"/>

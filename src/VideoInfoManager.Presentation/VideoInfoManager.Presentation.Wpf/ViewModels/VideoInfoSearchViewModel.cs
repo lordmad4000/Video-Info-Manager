@@ -67,7 +67,13 @@ public class VideoInfoSearchViewModel : ViewModelBase
 
     private void Search(object parameter)
     {
+        String[] lines = SearchText.Split(new String[] { Environment.NewLine }, StringSplitOptions.None);
         var search = new string[] { SearchText };
+        if (lines.Count() > 1)
+        {
+           search = lines;
+        }
+
         _videoInfoManagerPresentationAppService.Search(search, GetActiveStatus());
         VideoInfoResults = new ObservableCollection<VideoInfoDTO>(_videoInfoManagerPresentationAppService.GetResults());
     }
