@@ -27,19 +27,24 @@
                 <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="1*"/>
             </Grid.ColumnDefinitions>
-            <Button Grid.Column="0" Width="80" Height="80" Margin="0 20 0 0" Content="Pended"/>
-            <Button Grid.Column="1" Width="80" Height="80" Margin="0 20 0 0" Content="Saved"/>
-            <Button Grid.Column="2" Width="80" Height="80" Margin="0 20 0 0" Content="Backup"/>
-            <Button Grid.Column="3" Width="80" Height="80" Margin="0 20 0 0" Content="Deleted"/>
-            <Button Grid.Column="4" Width="80" Height="80" Margin="0 20 0 0" Content="Low Quality"/>
+            <Button Grid.Column="0" Width="80" Height="80" Margin="0 20 0 0" AllowDrop="True" DragDrop.Drop="AddData_DragDrop" Content="{Binding PendedButtonContent, Mode=TwoWay}"/>
+            <Button Grid.Column="1" Width="80" Height="80" Margin="0 20 0 0" AllowDrop="True" DragDrop.Drop="AddData_DragDrop" Content="{Binding SavedButtonContent, Mode=TwoWay}"/>
+            <Button Grid.Column="2" Width="80" Height="80" Margin="0 20 0 0" AllowDrop="True" DragDrop.Drop="AddData_DragDrop" Content="{Binding BackupedButtonContent, Mode=TwoWay}"/>
+            <Button Grid.Column="3" Width="80" Height="80" Margin="0 20 0 0" AllowDrop="True" DragDrop.Drop="AddData_DragDrop" Content="{Binding DeletedButtonContent, Mode=TwoWay}"/>
+            <Button Grid.Column="4" Width="80" Height="80" Margin="0 20 0 0" AllowDrop="True" DragDrop.Drop="AddData_DragDrop" Content="{Binding LowedButtonContent, Mode=TwoWay}"/>
         </Grid>
         <DockPanel Grid.Row="1">
             <Button Grid.Column="0" Grid.Row="1" Width="70" Height="40" Margin="10 0 0 0" Content="Paste"/>
             <Button Grid.Column="1" Grid.Row="1" Width="70" Height="40" Margin="10 0 0 0" Content="Cut First"/>
             <Button Grid.Column="2" Grid.Row="1" Width="70" Height="40" Margin="10 0 0 0" Content="Clear"/>
             <Button Grid.Column="3" Grid.Row="1" Width="70" Height="40" Margin="10 0 0 0" Content="Search"/>
-            <Button Grid.Column="4" Grid.Row="1" Width="70" Height="40" HorizontalAlignment="Right" Margin="0 0 10 0" Content="Export"/>
+            <Button Grid.Column="4" Grid.Row="1" Width="70" Height="40" Margin="0 0 10 0" Content="Export" HorizontalAlignment="Right"/>
         </DockPanel>
-        <TextBox Grid.Row="2" Margin="10 0 10 10 " TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" AcceptsReturn="True"/>
+        <TextBox Grid.Row="2" Margin="10 0 10 10 " TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" AcceptsReturn="True" 
+                 Text="{Binding MultiSearchTextBoxText, Mode=TwoWay}" 
+                 AllowDrop="True" 
+                 PreviewDragOver="MultiSearchTextBox_PreviewDragOver" 
+                 PreviewDrop="AddData_DragDrop">
+        </TextBox>
     </Grid>
 </UserControl>

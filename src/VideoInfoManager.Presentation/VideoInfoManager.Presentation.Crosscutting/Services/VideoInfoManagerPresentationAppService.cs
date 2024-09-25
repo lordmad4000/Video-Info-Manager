@@ -51,7 +51,7 @@ public class VideoInfoManagerPresentationAppService : IVideoInfoManagerPresentat
         {
             var data = _lastSearchData.Where(c => videoInfoActiveStatuses.Contains(c.StatusToVideoInfoStatusEnum()))
                                       .ToList();
-            //var data = _lastSearchData.ToList();
+
             var multipleAuthors = data.Where(c => _videoInfoManagerAppService.IsMultipleAuthor(c.Name, _videoInfoRenameConfigurations));
             var singleAuthor = data.Where(c => _videoInfoManagerAppService.IsMultipleAuthor(c.Name, _videoInfoRenameConfigurations) is false);
             var videoInforSearchList = new List<VideoInfoDTO>();
@@ -71,11 +71,82 @@ public class VideoInfoManagerPresentationAppService : IVideoInfoManagerPresentat
         }
     }
 
+    public string? ProcessData(string? textData, string status)
+    {
+        string? results = null;
+
+        try
+        {
+            VideoInfoStatusEnum videoInfoStatus = GetVideoInfoStatusByConfigurationName(status).Status;
+            string[]? files = null;
+            if (textData != null && textData != "")
+            {
+                files = textData.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            }
+            if (files != null)
+            {
+                results = _videoInfoAppService.AddManyFromStringArray(files, videoInfoStatus);
+            }
+        }
+        catch (Exception ex)
+        {
+            results = ex.Message;
+        }
+
+        return results;
+    }
+
     public bool Update(VideoInfoDTO videoInfoDTO)
     {
         videoInfoDTO.Status = GetVideoInfoStatusByConfigurationName(videoInfoDTO.Status).StatusName;
 
         return _videoInfoAppService.Update(videoInfoDTO);
+    }
+
+    public string NormalizeFileName(string fileName)
+    {
+        if (string.IsNullOrEmpty(fileName) == false)
+        {
+            fileName = GetFileNameOnly(fileName);
+        }
+
+        return fileName;
+    }
+
+    public VideoInfoStatus GetVideoInfoStatusByConfigurationName(string configurationName)
+    {
+        VideoInfoStatus? videoinfoStatus = _videoInfoStatuses.FirstOrDefault(c => c.ConfigurationName.Equals(configurationName));
+        if (videoinfoStatus is null)
+            return new VideoInfoStatus();
+
+        return videoinfoStatus;
+    }
+
+    private string GetFileNameOnly(string fileName)
+    {
+        fileName = RemovePath(fileName);
+        fileName = RemoveExtension(fileName);
+
+        return fileName;
+    }
+
+    private string RemovePath(string fileName)
+    {
+        int pos = fileName.LastIndexOf("\\");
+        fileName = fileName.Substring(pos + 1, fileName.Length - pos - 1);
+
+        return fileName;
+    }
+
+    private string RemoveExtension(string fileName)
+    {
+        int pos = fileName.LastIndexOf(".");
+        if (pos > 0)
+        {
+            fileName = fileName.Substring(0, pos);
+        }
+
+        return fileName;
     }
 
     private IEnumerable<VideoInfoDTO> GetVideoInfoWithConfigurationNames(IEnumerable<VideoInfoDTO> videoInfoDTOs)
@@ -144,15 +215,5 @@ public class VideoInfoManagerPresentationAppService : IVideoInfoManagerPresentat
 
         return videoinfoStatus;
     }
-
-    private VideoInfoStatus GetVideoInfoStatusByConfigurationName(string configurationName)
-    {
-        VideoInfoStatus? videoinfoStatus = _videoInfoStatuses.FirstOrDefault(c => c.ConfigurationName.Equals(configurationName));
-        if (videoinfoStatus is null)
-            return new VideoInfoStatus();
-
-        return videoinfoStatus;
-    }
-
 
 }
