@@ -34,14 +34,9 @@
                 <views:VideoInfoSearchView/>
             </Border>
             <Border Grid.Row="1">
-                <TabControl>
+                <TabControl SelectedIndex="{Binding Path=TabControlIndex,Mode=TwoWay}">
                     <TabItem Header="Search">
                         <Grid Background="White">
-                            <Grid.Resources>
-                                <Style TargetType="Border">
-                                    <Setter Property="Padding" Value="5 5 5 5"/>
-                                </Style>
-                            </Grid.Resources>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="30px" />
                                 <RowDefinition Height="1*" />

@@ -18,5 +18,16 @@ public class MainWindowViewModel : ViewModelBase
         }
     }
 
+    private int _tabControlIndex;
+    public int TabControlIndex
+    {
+        get => _tabControlIndex;
+        set
+        {
+            _tabControlIndex = value;
+            OnPropertyChanged(nameof(TabControlIndex));
+        }
+    }
+
 
 }

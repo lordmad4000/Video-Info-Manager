@@ -76,6 +76,12 @@ public class VideoInfoSearchViewModel : ViewModelBase
 
         _videoInfoManagerPresentationAppService.Search(search, GetActiveStatus());
         VideoInfoResults = new ObservableCollection<VideoInfoDTO>(_videoInfoManagerPresentationAppService.GetResults());
+
+        if (_mainWindowViewModel.TabControlIndex != 0)
+        {
+            _mainWindowViewModel.TabControlIndex = 0;
+        }
+
     }
 
     private void PasteToSearch(object parameter)
