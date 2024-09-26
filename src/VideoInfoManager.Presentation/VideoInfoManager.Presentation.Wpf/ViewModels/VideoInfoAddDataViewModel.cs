@@ -4,6 +4,8 @@ using System.Windows;
 using VideoInfoManager.Presentation.CrossCutting.Services;
 using VideoInfoManager.Presentation.CrossCutting.Models;
 using VideoInfoManager.Domain.Enums;
+using System.Windows.Input;
+using VideoInfoManager.Presentation.Wpf.Handlers;
 
 namespace VideoInfoManager.Presentation.Wpf.ViewModels;
 
@@ -14,9 +16,12 @@ public class VideoInfoAddDataViewModel : ViewModelBase
     public VideoInfoAddDataViewModel(IVideoInfoManagerPresentationAppService videoInfoManagerPresentationAppService)
     {
         _videoInfoManagerPresentationAppService = videoInfoManagerPresentationAppService;
+        AddDataCommand = new CommandHandler(AddDataFromCommand, _ => true);
 
         InitializeButtons();
     }
+
+    public ICommand AddDataCommand { get; private set; } = new CommandHandler(c => c.ToString(), _ => true);
 
     private string _multiSearchTextBoxText = string.Empty;
     public string MultiSearchTextBoxText
@@ -84,66 +89,96 @@ public class VideoInfoAddDataViewModel : ViewModelBase
         }
     }
 
-
-
     public void AddData_DragDrop(object sender, DragEventArgs e)
     {
         if (e.Data == null)
         {
             return;
         }
-        string? textData = null;
         if (e.Data.GetDataPresent(DataFormats.Text))
         {
-            var dragDropData = e.Data.GetData(DataFormats.Text);
-            if (dragDropData != null)
+            string? data = (string)e.Data.GetData(DataFormats.Text);
+            if (data != null)
             {
-                textData = dragDropData.ToString();
+                AddData(sender, data.ToString());
             }
         }
         else if (e.Data.GetDataPresent(DataFormats.FileDrop))
         {
-            var dragDropData = e.Data.GetData(DataFormats.FileDrop, true);
-            if (dragDropData != null)
+            string[]? data = (string[])e.Data.GetData(DataFormats.FileDrop, true);
+            if (data != null)
             {
-                var fileList = (string[])dragDropData;
-                var text = new StringBuilder();
-                foreach (var file in fileList)
-                {
-                    string normalizedFileName = _videoInfoManagerPresentationAppService.NormalizeFileName(file);
-                    text.Append($"{normalizedFileName}{Environment.NewLine}");
-                }
-                textData = text.ToString();
+                AddData(sender, NormalizeAndConvertToStringWithNewLineSeparators(data));
             }
         }
-        if (textData != null)
+    }
+
+    private void AddDataFromCommand(object parameter)
+    {
+        if (Clipboard.ContainsText())
         {
-            if (sender.GetType() == typeof(Button))
+            string data = Clipboard.GetText();
+            if (string.IsNullOrEmpty(data) == false)
             {
-                var button = sender as Button;
-                if (button != null)
+                AddData(parameter, data);
+            }
+        }
+        if (Clipboard.ContainsFileDropList())
+        {
+            string[]? data = (string[])Clipboard.GetData("FileDrop");
+            if (data != null)
+            {
+                AddData(parameter, NormalizeAndConvertToStringWithNewLineSeparators(data));
+            }
+        }
+    }
+
+    private string? NormalizeAndConvertToStringWithNewLineSeparators(string[] data)
+    {
+        if (data is null)
+        {
+            return null;
+        }
+        var text = new StringBuilder();
+        foreach (var file in data)
+        {
+            string normalizedFileName = _videoInfoManagerPresentationAppService.NormalizeFileName(file);
+            text.Append($"{normalizedFileName}{Environment.NewLine}");
+        }
+
+        return text.ToString();
+    }
+
+    private void AddData(object sender, string? textData)
+    {
+        if (textData is null)
+        {
+            return;
+        }
+        if (sender.GetType() == typeof(Button))
+        {
+            var button = sender as Button;
+            if (button != null)
+            {
+                string buttonText = (string)button.Content;                
+                if (MessageBox.Show(App.Current.MainWindow,$"Add/Update {buttonText} Data to Data Base?", "Add/Update Data", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes )
                 {
-                    string buttonText = (string)button.Content;
-                    if (MessageBox.Show($"Add/Update {buttonText} Data to Data Base?", "Add/Update Data", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    var results = _videoInfoManagerPresentationAppService.ProcessData(textData, buttonText);
+                    if (string.IsNullOrEmpty(results) == false)
                     {
-                        var results = _videoInfoManagerPresentationAppService.ProcessData(textData, buttonText);
-                        if (string.IsNullOrEmpty(results) == false)
-                        {
-                            string state = results.Split('[', ']')[1];                           
-                            results = results.Replace(state, buttonText);
-                            MessageBox.Show(results);
-                        }
+                        string state = results.Split('[', ']')[1];
+                        results = results.Replace(state, buttonText);
+                        MessageBox.Show(results);
                     }
                 }
             }
-            if (sender.GetType() == typeof(TextBox))
+        }
+        if (sender.GetType() == typeof(TextBox))
+        {
+            var rtb = sender as TextBox;
+            if (rtb != null)
             {
-                var rtb = sender as TextBox;
-                if (rtb != null)
-                {
-                    MultiSearchTextBoxText += textData;
-                    //rtb.Text += textData;
-                }
+                MultiSearchTextBoxText += textData;
             }
         }
     }

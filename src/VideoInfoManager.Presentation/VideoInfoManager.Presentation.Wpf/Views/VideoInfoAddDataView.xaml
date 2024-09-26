@@ -27,11 +27,31 @@
                 <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="1*"/>
             </Grid.ColumnDefinitions>
-            <Button Grid.Column="0" Width="80" Height="80" Margin="0 20 0 0" AllowDrop="True" DragDrop.Drop="AddData_DragDrop" Content="{Binding PendedButtonContent, Mode=TwoWay}"/>
-            <Button Grid.Column="1" Width="80" Height="80" Margin="0 20 0 0" AllowDrop="True" DragDrop.Drop="AddData_DragDrop" Content="{Binding SavedButtonContent, Mode=TwoWay}"/>
-            <Button Grid.Column="2" Width="80" Height="80" Margin="0 20 0 0" AllowDrop="True" DragDrop.Drop="AddData_DragDrop" Content="{Binding BackupedButtonContent, Mode=TwoWay}"/>
-            <Button Grid.Column="3" Width="80" Height="80" Margin="0 20 0 0" AllowDrop="True" DragDrop.Drop="AddData_DragDrop" Content="{Binding DeletedButtonContent, Mode=TwoWay}"/>
-            <Button Grid.Column="4" Width="80" Height="80" Margin="0 20 0 0" AllowDrop="True" DragDrop.Drop="AddData_DragDrop" Content="{Binding LowedButtonContent, Mode=TwoWay}"/>
+            <Button x:Name="btnPended"
+                    Grid.Column="0" Width="80" Height="80" Margin="0 20 0 0" AllowDrop="True" DragDrop.Drop="AddData_DragDrop" 
+                    Content="{Binding PendedButtonContent, Mode=TwoWay}"
+                    Command="{Binding AddDataCommand}"
+                    CommandParameter="{Binding ElementName=btnPended}"/>
+            <Button x:Name="btnSaved"
+                Grid.Column="1" Width="80" Height="80" Margin="0 20 0 0" AllowDrop="True" DragDrop.Drop="AddData_DragDrop" 
+                    Content="{Binding SavedButtonContent, Mode=TwoWay}"
+                    Command="{Binding AddDataCommand}"
+                    CommandParameter="{Binding ElementName=btnSaved}"/>
+            <Button x:Name="btnBackuped"
+                Grid.Column="2" Width="80" Height="80" Margin="0 20 0 0" AllowDrop="True" DragDrop.Drop="AddData_DragDrop" 
+                    Content="{Binding BackupedButtonContent, Mode=TwoWay}"
+                    Command="{Binding AddDataCommand}"
+                    CommandParameter="{Binding ElementName=btnBackuped}"/>
+            <Button x:Name="btnDeleted"
+                    Grid.Column="3" Width="80" Height="80" Margin="0 20 0 0" AllowDrop="True" DragDrop.Drop="AddData_DragDrop" 
+                    Content="{Binding DeletedButtonContent, Mode=TwoWay}"
+                    Command="{Binding AddDataCommand}"
+                    CommandParameter="{Binding ElementName=btnDeleted}"/>
+            <Button x:Name="btnLowed"
+                    Grid.Column="4" Width="80" Height="80" Margin="0 20 0 0" AllowDrop="True" DragDrop.Drop="AddData_DragDrop" 
+                    Content="{Binding LowedButtonContent, Mode=TwoWay}"
+                    Command="{Binding AddDataCommand}"
+                    CommandParameter="{Binding ElementName=btnLowed}"/>
         </Grid>
         <DockPanel Grid.Row="1">
             <Button Grid.Column="0" Grid.Row="1" Width="70" Height="40" Margin="10 0 0 0" Content="Paste"/>
