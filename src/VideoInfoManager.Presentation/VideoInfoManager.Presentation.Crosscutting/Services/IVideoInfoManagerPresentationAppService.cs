@@ -14,6 +14,7 @@ namespace VideoInfoManager.Presentation.CrossCutting.Services
         string? ProcessData(string? textData, string status);
         IEnumerable<VideoInfoDTO> GetManyVideoInfo(ICollection<string> videoInfoNames);
         bool Update(VideoInfoDTO videoInfoDTO);
+        bool Delete(VideoInfoDTO videoInfoDTO);
         string NormalizeFileName(string fileName);
         VideoInfoStatus GetVideoInfoStatusByConfigurationName(string configurationName);
         IEnumerable<string> GetOnlyAuthors(ICollection<string> videoInfoNames);

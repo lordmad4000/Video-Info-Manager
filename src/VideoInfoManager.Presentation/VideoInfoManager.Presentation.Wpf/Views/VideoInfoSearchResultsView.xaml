@@ -45,7 +45,8 @@
                         <DataTemplate>
                             <Button Background="{StaticResource bg-danger}" Padding="5,1" 
                                     Content="Delete"
-                                    Command="{Binding EditCommand}"/>
+                                    Command="{Binding Path=DataContext.DeleteCommand, ElementName=dgSearchResults}"
+                                    CommandParameter="{Binding}"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>

@@ -111,6 +111,16 @@ public class VideoInfoManagerPresentationAppService : IVideoInfoManagerPresentat
         return _videoInfoAppService.Update(videoInfoDTO);
     }
 
+    public bool Delete(VideoInfoDTO videoInfoDTO)
+    {
+        if (videoInfoDTO is null)
+        {
+            return false;
+        }
+
+        return _videoInfoAppService.Remove(videoInfoDTO.Id);
+    }
+
     public string NormalizeFileName(string fileName)
     {
         if (string.IsNullOrEmpty(fileName) == false)

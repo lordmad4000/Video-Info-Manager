@@ -22,15 +22,15 @@ public class VideoInfoSearchViewModel : ViewModelBase
 
     public VideoInfoSearchViewModel(IVideoInfoManagerPresentationAppService videoInfoManagerPresentationAppService, IAbstractFactory<EditDialogWindow> editDialogWindowFactory, MainWindowViewModel mainWindowViewModel)
     {
-        _videoInfoManagerPresentationAppService = videoInfoManagerPresentationAppService;        
+        _videoInfoManagerPresentationAppService = videoInfoManagerPresentationAppService;
         _editDialogWindowFactory = editDialogWindowFactory;
         _mainWindowViewModel = mainWindowViewModel;
         _statuses = _videoInfoManagerPresentationAppService.GetVideoInfoStatuses().Select(c => c.ConfigurationName)
                                                            .ToList();
-        
+
         InitializeStatusCheckBoxes();
         InititalizeCommands();
-    }    
+    }
 
     public StatusCheckBoxesViewModel StatusCheckBoxes { get; set; } = new StatusCheckBoxesViewModel();
     public StatusCheckBoxesViewModel _statusCheckBoxes = new StatusCheckBoxesViewModel();
@@ -44,7 +44,7 @@ public class VideoInfoSearchViewModel : ViewModelBase
             _videoInfoResults = value;
             OnPropertyChanged("VideoInfoResults");
         }
-    }                    
+    }
 
     private string _searchText = string.Empty;
     public string SearchText
@@ -61,9 +61,10 @@ public class VideoInfoSearchViewModel : ViewModelBase
         }
     }
 
-    public ICommand PasteToSearchCommand { get; private set; } = new CommandHandler(c => c.ToString(), _ => true); 
-    public ICommand SearchCommand {  get;  private set; } = new CommandHandler(c => c.ToString(), _ => true);
+    public ICommand PasteToSearchCommand { get; private set; } = new CommandHandler(c => c.ToString(), _ => true);
+    public ICommand SearchCommand { get; private set; } = new CommandHandler(c => c.ToString(), _ => true);
     public ICommand EditCommand { get; private set; } = new CommandHandler(c => c.ToString(), _ => true);
+    public ICommand DeleteCommand { get; private set; } = new CommandHandler(c => c.ToString(), _ => true);
 
     private void Search(object parameter)
     {
@@ -71,7 +72,7 @@ public class VideoInfoSearchViewModel : ViewModelBase
         var search = new string[] { SearchText };
         if (lines.Count() > 1)
         {
-           search = lines;
+            search = lines;
         }
 
         _videoInfoManagerPresentationAppService.Search(search, GetActiveStatus());
@@ -94,7 +95,7 @@ public class VideoInfoSearchViewModel : ViewModelBase
 
     private void Edit(object videoInfoRow)
     {
-        var videoInfoDTO = (VideoInfoDTO) videoInfoRow;
+        var videoInfoDTO = (VideoInfoDTO)videoInfoRow;
 
         int updated = _editDialogWindowFactory.Create()
                                               .ShowDialogWindow(videoInfoDTO.Id, videoInfoDTO.Name, videoInfoDTO.Status, _statuses);
@@ -108,6 +109,25 @@ public class VideoInfoSearchViewModel : ViewModelBase
 
         if (updated == 1)
         {
+            _videoInfoManagerPresentationAppService.LastSearch(GetActiveStatus(), true);
+            VideoInfoResults = new ObservableCollection<VideoInfoDTO>(_videoInfoManagerPresentationAppService.GetResults());
+        }
+    }
+
+    private void Delete(object videoInfoRow)
+    {
+        var videoInfoDTO = (VideoInfoDTO)videoInfoRow;
+
+
+        if (videoInfoDTO is null || 
+            MessageBox.Show(App.Current.MainWindow, $"Delete {videoInfoDTO.Name} from the Data Base?", "Delete Data", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No)
+        {
+            return;
+        }
+
+        if (_videoInfoManagerPresentationAppService.Delete(videoInfoDTO) is true)
+        {
+            MessageBox.Show($"{videoInfoDTO.Name} Removed.");
             _videoInfoManagerPresentationAppService.LastSearch(GetActiveStatus(), true);
             VideoInfoResults = new ObservableCollection<VideoInfoDTO>(_videoInfoManagerPresentationAppService.GetResults());
         }
@@ -133,9 +153,9 @@ public class VideoInfoSearchViewModel : ViewModelBase
 
         this.StatusCheckBoxes.PendedContent = _videoInfoManagerPresentationAppService.GetVideoInfoStatuses()[0].ConfigurationName;
         this.StatusCheckBoxes.SavedContent = _videoInfoManagerPresentationAppService.GetVideoInfoStatuses()[1].ConfigurationName; ;
-        this.StatusCheckBoxes.BackupedContent = _videoInfoManagerPresentationAppService.GetVideoInfoStatuses()[2].ConfigurationName;;
-        this.StatusCheckBoxes.DeletedContent = _videoInfoManagerPresentationAppService.GetVideoInfoStatuses()[3].ConfigurationName;;
-        this.StatusCheckBoxes.LowedContent = _videoInfoManagerPresentationAppService.GetVideoInfoStatuses()[4].ConfigurationName;;
+        this.StatusCheckBoxes.BackupedContent = _videoInfoManagerPresentationAppService.GetVideoInfoStatuses()[2].ConfigurationName; ;
+        this.StatusCheckBoxes.DeletedContent = _videoInfoManagerPresentationAppService.GetVideoInfoStatuses()[3].ConfigurationName; ;
+        this.StatusCheckBoxes.LowedContent = _videoInfoManagerPresentationAppService.GetVideoInfoStatuses()[4].ConfigurationName; ;
         this.StatusCheckBoxes.PendedIsChecked = true;
         this.StatusCheckBoxes.SavedIsChecked = true;
         this.StatusCheckBoxes.BackupedIsChecked = true;
@@ -148,6 +168,7 @@ public class VideoInfoSearchViewModel : ViewModelBase
         PasteToSearchCommand = new CommandHandler(PasteToSearch, _ => true);
         SearchCommand = new CommandHandler(Search, _ => true);
         EditCommand = new CommandHandler(Edit, _ => true);
+        DeleteCommand = new CommandHandler(Delete, _ => true);
     }
 
     private void StatusCheckBoxesViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
