@@ -27,6 +27,7 @@ public class VideoInfoAddDataViewModel : ViewModelBase
         PasteToMultiSearchTextBoxCommand = new CommandHandler(PasteToMultiSearchTextBox, _ => true);
         CutFirstFromMultiSearchTextBoxCommand = new CommandHandler(CutFirstFromMultiSearchTextBox, _ => true);
         SearchCommand = new CommandHandler(SearchByAuthor, _ => true);
+        ClearMultiSearchTextBoxCommand = new CommandHandler(ClearMultiSearchTextBox, _ => true);
 
         InitializeButtons();
     }
@@ -35,6 +36,7 @@ public class VideoInfoAddDataViewModel : ViewModelBase
     public ICommand PasteToMultiSearchTextBoxCommand { get; private set; } = new CommandHandler(c => c.ToString(), _ => true);
     public ICommand CutFirstFromMultiSearchTextBoxCommand { get; private set; } = new CommandHandler(c => c.ToString(), _ => true);
     public ICommand SearchCommand { get; private set; } = new CommandHandler(c => c.ToString(), _ => true);
+    public ICommand ClearMultiSearchTextBoxCommand { get; private set; } = new CommandHandler(c => c.ToString(), _ => true);
 
     private string _multiSearchTextBoxText = string.Empty;
     public string MultiSearchTextBoxText
@@ -202,6 +204,11 @@ public class VideoInfoAddDataViewModel : ViewModelBase
         {
             _mainWindowViewModel.TabControlIndex = 0;
         }
+    }
+
+    private void ClearMultiSearchTextBox(object parameter)
+    {
+        MultiSearchTextBoxText = "";
     }
 
     private void AddDataFromClipboard(object parameter)
