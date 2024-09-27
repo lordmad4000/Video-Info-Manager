@@ -1,4 +1,6 @@
-﻿namespace VideoInfoManager.Presentation.Wpf.ViewModels;
+﻿using System.Windows;
+
+namespace VideoInfoManager.Presentation.Wpf.ViewModels;
 
 public class MainWindowViewModel : ViewModelBase
 {
@@ -29,5 +31,9 @@ public class MainWindowViewModel : ViewModelBase
         }
     }
 
+    public void AddDataTab_DragEnter(object sender, DragEventArgs e)
+    {
+        TabControlIndex = 1;
+    }
 
 }

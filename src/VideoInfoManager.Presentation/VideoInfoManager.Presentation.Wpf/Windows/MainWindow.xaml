@@ -49,7 +49,7 @@
                             </Border>
                         </Grid>
                     </TabItem>
-                    <TabItem Header="Add Data" >
+                    <TabItem Name="AddDataTabItem" Header="Add Data" AllowDrop="True">
                         <views:VideoInfoAddDataView/>
                     </TabItem>
                 </TabControl>

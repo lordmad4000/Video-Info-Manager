@@ -20,6 +20,7 @@ namespace VideoInfoManager.Presentation.Wpf.Windows
             this.DataContext = _mainWindowViewModel;
             InitializeComponent();
             InitializeWindow();
+            this.AddDataTabItem.DragEnter += _mainWindowViewModel.AddDataTab_DragEnter;
         }
 
         private void InitializeWindow()
