@@ -7,19 +7,26 @@ using VideoInfoManager.Domain.Enums;
 using System.Windows.Input;
 using VideoInfoManager.Presentation.Wpf.Handlers;
 using VideoInfoManager.Presentation.Crosscutting.Extensions;
+using System.Collections.ObjectModel;
+using VideoInfoManager.Application.DTOs;
 
 namespace VideoInfoManager.Presentation.Wpf.ViewModels;
 
 public class VideoInfoAddDataViewModel : ViewModelBase
 {
     private readonly IVideoInfoManagerPresentationAppService _videoInfoManagerPresentationAppService;
+    private readonly VideoInfoSearchViewModel _videoInfoSearchViewModel;
+    private readonly MainWindowViewModel _mainWindowViewModel;
 
-    public VideoInfoAddDataViewModel(IVideoInfoManagerPresentationAppService videoInfoManagerPresentationAppService)
+    public VideoInfoAddDataViewModel(IVideoInfoManagerPresentationAppService videoInfoManagerPresentationAppService, VideoInfoSearchViewModel videoInfoSearchViewModel, MainWindowViewModel mainWindowViewModel)
     {
         _videoInfoManagerPresentationAppService = videoInfoManagerPresentationAppService;
+        _videoInfoSearchViewModel = videoInfoSearchViewModel;
+        _mainWindowViewModel = mainWindowViewModel;
         AddDataCommand = new CommandHandler(AddDataFromClipboard, _ => true);
         PasteToMultiSearchTextBoxCommand = new CommandHandler(PasteToMultiSearchTextBox, _ => true);
         CutFirstFromMultiSearchTextBoxCommand = new CommandHandler(CutFirstFromMultiSearchTextBox, _ => true);
+        SearchCommand = new CommandHandler(SearchByAuthor, _ => true);
 
         InitializeButtons();
     }
@@ -27,6 +34,7 @@ public class VideoInfoAddDataViewModel : ViewModelBase
     public ICommand AddDataCommand { get; private set; } = new CommandHandler(c => c.ToString(), _ => true);
     public ICommand PasteToMultiSearchTextBoxCommand { get; private set; } = new CommandHandler(c => c.ToString(), _ => true);
     public ICommand CutFirstFromMultiSearchTextBoxCommand { get; private set; } = new CommandHandler(c => c.ToString(), _ => true);
+    public ICommand SearchCommand { get; private set; } = new CommandHandler(c => c.ToString(), _ => true);
 
     private string _multiSearchTextBoxText = string.Empty;
     public string MultiSearchTextBoxText
@@ -174,6 +182,28 @@ public class VideoInfoAddDataViewModel : ViewModelBase
         }
     }
 
+    private void SearchByAuthor(object parameter)
+    {
+        if (string.IsNullOrEmpty(MultiSearchTextBoxText))
+        {
+            return;
+        }
+        String[] lines = MultiSearchTextBoxText.Split(new String[] { Environment.NewLine }, StringSplitOptions.None);
+        var search = new string[] { MultiSearchTextBoxText };
+        if (lines.Count() > 1)
+        {
+            search = lines;
+        }
+
+        _videoInfoManagerPresentationAppService.Search(search, GetActiveStatus(), true);
+        _videoInfoSearchViewModel.VideoInfoResults = new ObservableCollection<VideoInfoDTO>(_videoInfoManagerPresentationAppService.GetResults());
+
+        if (_mainWindowViewModel.TabControlIndex != 0)
+        {
+            _mainWindowViewModel.TabControlIndex = 0;
+        }
+    }
+
     private void AddDataFromClipboard(object parameter)
     {
         if (Clipboard.ContainsText())
@@ -260,6 +290,19 @@ public class VideoInfoAddDataViewModel : ViewModelBase
 
         return videoInfoStatus.ConfigurationName;
     }
+
+    private List<VideoInfoStatusEnum> GetActiveStatus()
+    {
+        var activeStatus = new List<VideoInfoStatusEnum>();
+        if (_videoInfoSearchViewModel.StatusCheckBoxes.PendedIsChecked) activeStatus.Add(VideoInfoStatusEnum.Pended);
+        if (_videoInfoSearchViewModel.StatusCheckBoxes.SavedIsChecked) activeStatus.Add(VideoInfoStatusEnum.Saved);
+        if (_videoInfoSearchViewModel.StatusCheckBoxes.BackupedIsChecked) activeStatus.Add(VideoInfoStatusEnum.Backuped);
+        if (_videoInfoSearchViewModel.StatusCheckBoxes.DeletedIsChecked) activeStatus.Add(VideoInfoStatusEnum.Deleted);
+        if (_videoInfoSearchViewModel.StatusCheckBoxes.LowedIsChecked) activeStatus.Add(VideoInfoStatusEnum.Lowed);
+
+        return activeStatus;
+    }
+
 
     private void InitializeButtons()
     {

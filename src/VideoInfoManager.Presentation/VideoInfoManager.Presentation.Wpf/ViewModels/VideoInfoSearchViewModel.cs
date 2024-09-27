@@ -81,7 +81,6 @@ public class VideoInfoSearchViewModel : ViewModelBase
         {
             _mainWindowViewModel.TabControlIndex = 0;
         }
-
     }
 
     private void PasteToSearch(object parameter)
