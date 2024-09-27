@@ -16,12 +16,14 @@ public class VideoInfoAddDataViewModel : ViewModelBase
     public VideoInfoAddDataViewModel(IVideoInfoManagerPresentationAppService videoInfoManagerPresentationAppService)
     {
         _videoInfoManagerPresentationAppService = videoInfoManagerPresentationAppService;
-        AddDataCommand = new CommandHandler(AddDataFromCommand, _ => true);
+        AddDataCommand = new CommandHandler(AddDataFromClipboard, _ => true);
+        PasteToMultiSearchTextBoxCommand = new CommandHandler(PasteToMultiSearchTextBox, _ => true);
 
         InitializeButtons();
     }
 
     public ICommand AddDataCommand { get; private set; } = new CommandHandler(c => c.ToString(), _ => true);
+    public ICommand PasteToMultiSearchTextBoxCommand { get; private set; } = new CommandHandler(c => c.ToString(), _ => true);
 
     private string _multiSearchTextBoxText = string.Empty;
     public string MultiSearchTextBoxText
@@ -113,7 +115,45 @@ public class VideoInfoAddDataViewModel : ViewModelBase
         }
     }
 
-    private void AddDataFromCommand(object parameter)
+    private void PasteToMultiSearchTextBox(object parameter)
+    {
+        if (Clipboard.ContainsText())
+        {
+            string clipBoardText = Clipboard.GetText();
+            var splitText = clipBoardText.Split("\n", StringSplitOptions.RemoveEmptyEntries);
+            if (splitText is not null && splitText.Length > 0)
+            {
+                var text = new StringBuilder();
+                foreach (string item in splitText)
+                {
+                    string videoName = _videoInfoManagerPresentationAppService.RenameVideoInfoName(item);
+                    text.Append($"{videoName}{Environment.NewLine}");
+                }
+
+                MultiSearchTextBoxText += text;
+            }
+        }
+        if (Clipboard.ContainsFileDropList())
+        {
+            var fileList = Clipboard.GetFileDropList();
+            if (fileList is not null && fileList.Count > 0)
+            {
+                var text = new StringBuilder();
+                foreach (var file in fileList)
+                {
+                    if (file is not null)
+                    {
+                        string videoName = _videoInfoManagerPresentationAppService.NormalizeFileName(file);
+                        text.Append($"{_videoInfoManagerPresentationAppService.RenameVideoInfoName(videoName)}{Environment.NewLine}");
+                    }
+                }
+
+                MultiSearchTextBoxText += text;
+            }
+        }
+    }
+
+    private void AddDataFromClipboard(object parameter)
     {
         if (Clipboard.ContainsText())
         {
