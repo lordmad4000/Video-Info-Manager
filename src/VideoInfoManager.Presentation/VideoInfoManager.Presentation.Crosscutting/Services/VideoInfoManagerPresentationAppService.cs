@@ -3,6 +3,7 @@ using VideoInfoManager.Application.DTOs;
 using VideoInfoManager.Application.Interfaces;
 using VideoInfoManager.Application.Models;
 using VideoInfoManager.Domain.Enums;
+using VideoInfoManager.Presentation.Crosscutting.Extensions;
 using VideoInfoManager.Presentation.CrossCutting.Models;
 
 namespace VideoInfoManager.Presentation.CrossCutting.Services;
@@ -250,6 +251,24 @@ public class VideoInfoManagerPresentationAppService : IVideoInfoManagerPresentat
             return text.Substring(startIndex);
 
         return text.Substring(startIndex, length);
+    }
+
+    public string RemoveFirstItem(string sourceText)
+    {
+        if (String.IsNullOrWhiteSpace(sourceText) is false)
+        {
+            var splitText = sourceText.Split("\n", StringSplitOptions.RemoveEmptyEntries);
+            if (splitText.Length > 0)
+            {
+                sourceText = "";
+                for (int i = 1; i < splitText.Length; i++)
+                {
+                    sourceText += $"{splitText[i].RemoveNewLine()}{Environment.NewLine}";
+                }                
+            }
+        }
+
+        return sourceText;
     }
 
     private string GetNameOrEmpty(string fileName, string separator)

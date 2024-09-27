@@ -20,6 +20,7 @@ namespace VideoInfoManager.Presentation.CrossCutting.Services
         bool IsMultipleAuthor(string fullName);
         string RenameVideoInfoName(string videoInfoName);
         string SubstringOfString(string text, int startIndex, int length = 0);
+        string RemoveFirstItem(string sourceText);
 
     }
 }

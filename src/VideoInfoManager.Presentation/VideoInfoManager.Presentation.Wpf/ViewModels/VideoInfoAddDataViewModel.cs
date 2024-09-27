@@ -6,6 +6,7 @@ using VideoInfoManager.Presentation.CrossCutting.Models;
 using VideoInfoManager.Domain.Enums;
 using System.Windows.Input;
 using VideoInfoManager.Presentation.Wpf.Handlers;
+using VideoInfoManager.Presentation.Crosscutting.Extensions;
 
 namespace VideoInfoManager.Presentation.Wpf.ViewModels;
 
@@ -18,12 +19,14 @@ public class VideoInfoAddDataViewModel : ViewModelBase
         _videoInfoManagerPresentationAppService = videoInfoManagerPresentationAppService;
         AddDataCommand = new CommandHandler(AddDataFromClipboard, _ => true);
         PasteToMultiSearchTextBoxCommand = new CommandHandler(PasteToMultiSearchTextBox, _ => true);
+        CutFirstFromMultiSearchTextBoxCommand = new CommandHandler(CutFirstFromMultiSearchTextBox, _ => true);
 
         InitializeButtons();
     }
 
     public ICommand AddDataCommand { get; private set; } = new CommandHandler(c => c.ToString(), _ => true);
     public ICommand PasteToMultiSearchTextBoxCommand { get; private set; } = new CommandHandler(c => c.ToString(), _ => true);
+    public ICommand CutFirstFromMultiSearchTextBoxCommand { get; private set; } = new CommandHandler(c => c.ToString(), _ => true);
 
     private string _multiSearchTextBoxText = string.Empty;
     public string MultiSearchTextBoxText
@@ -153,6 +156,24 @@ public class VideoInfoAddDataViewModel : ViewModelBase
         }
     }
 
+    private void CutFirstFromMultiSearchTextBox(object parameter)
+    {
+        if (string.IsNullOrEmpty(MultiSearchTextBoxText))
+        {
+            return;
+        }
+        string result = _videoInfoManagerPresentationAppService.RemoveFirstItem(MultiSearchTextBoxText);
+        string cutText = string.IsNullOrEmpty(result) is true
+                         ? MultiSearchTextBoxText
+                         : MultiSearchTextBoxText.Replace(result, ""); ;
+
+        if (string.IsNullOrEmpty(cutText) is false)
+        {
+            Clipboard.SetText(cutText.RemoveNewLine());
+            MultiSearchTextBoxText = result;
+        }
+    }
+
     private void AddDataFromClipboard(object parameter)
     {
         if (Clipboard.ContainsText())
@@ -200,8 +221,8 @@ public class VideoInfoAddDataViewModel : ViewModelBase
             var button = sender as Button;
             if (button != null)
             {
-                string buttonText = (string)button.Content;                
-                if (MessageBox.Show(App.Current.MainWindow,$"Add/Update {buttonText} Data to Data Base?", "Add/Update Data", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes )
+                string buttonText = (string)button.Content;
+                if (MessageBox.Show(App.Current.MainWindow, $"Add/Update {buttonText} Data to Data Base?", "Add/Update Data", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                 {
                     var results = _videoInfoManagerPresentationAppService.ProcessData(textData, buttonText);
                     if (string.IsNullOrEmpty(results) == false)
