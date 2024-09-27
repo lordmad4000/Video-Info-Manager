@@ -271,6 +271,19 @@ public class VideoInfoManagerPresentationAppService : IVideoInfoManagerPresentat
         return sourceText;
     }
 
+    public List<VideoInfoDTO>? GetAllDataOrderByName()
+    {
+        var videoInfoDTOs = _videoInfoAppService.GetManyContains("");
+
+        if (videoInfoDTOs is null || videoInfoDTOs.Count() == 0)
+        {
+            return null;
+        }
+
+        return videoInfoDTOs.OrderBy(c => c.Name)
+                            .ToList();
+    }
+
     private string GetNameOrEmpty(string fileName, string separator)
     {
         int firstPos = IndexOf(fileName, separator);

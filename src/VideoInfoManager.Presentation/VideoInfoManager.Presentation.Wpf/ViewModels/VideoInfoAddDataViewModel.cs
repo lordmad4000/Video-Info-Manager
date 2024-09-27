@@ -9,6 +9,8 @@ using VideoInfoManager.Presentation.Wpf.Handlers;
 using VideoInfoManager.Presentation.Crosscutting.Extensions;
 using System.Collections.ObjectModel;
 using VideoInfoManager.Application.DTOs;
+using Microsoft.Win32;
+using System.IO;
 
 namespace VideoInfoManager.Presentation.Wpf.ViewModels;
 
@@ -28,6 +30,7 @@ public class VideoInfoAddDataViewModel : ViewModelBase
         CutFirstFromMultiSearchTextBoxCommand = new CommandHandler(CutFirstFromMultiSearchTextBox, _ => true);
         SearchCommand = new CommandHandler(SearchByAuthor, _ => true);
         ClearMultiSearchTextBoxCommand = new CommandHandler(ClearMultiSearchTextBox, _ => true);
+        ExportDataCommand = new CommandHandler(ExportData, _ => true);        
 
         InitializeButtons();
     }
@@ -37,6 +40,7 @@ public class VideoInfoAddDataViewModel : ViewModelBase
     public ICommand CutFirstFromMultiSearchTextBoxCommand { get; private set; } = new CommandHandler(c => c.ToString(), _ => true);
     public ICommand SearchCommand { get; private set; } = new CommandHandler(c => c.ToString(), _ => true);
     public ICommand ClearMultiSearchTextBoxCommand { get; private set; } = new CommandHandler(c => c.ToString(), _ => true);
+    public ICommand ExportDataCommand { get; private set; } = new CommandHandler(c => c.ToString(), _ => true);    
 
     private string _multiSearchTextBoxText = string.Empty;
     public string MultiSearchTextBoxText
@@ -209,6 +213,39 @@ public class VideoInfoAddDataViewModel : ViewModelBase
     private void ClearMultiSearchTextBox(object parameter)
     {
         MultiSearchTextBoxText = "";
+    }
+
+    private void ExportData(object parameter)
+    {
+        List<VideoInfoDTO>? sortedVideoInfo = _videoInfoManagerPresentationAppService.GetAllDataOrderByName();
+
+        if (sortedVideoInfo is null || sortedVideoInfo.Count() == 0)
+        {
+            MessageBox.Show("No data found.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        var saveFileDialog = new SaveFileDialog();
+        saveFileDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
+        saveFileDialog.DefaultExt = "txt";
+        saveFileDialog.RestoreDirectory = true;
+
+        if (saveFileDialog.ShowDialog() is true)
+        {
+            var path = saveFileDialog.FileName;
+            using (var fs = new FileStream(path, FileMode.Create))
+            {
+                using (var sw = new StreamWriter(fs))
+                {
+                    foreach (var videoInfo in sortedVideoInfo)
+                    {
+                        string item = $"({videoInfo.Status}) {videoInfo.Name}";
+                        sw.WriteLine(item);
+                    }
+                }
+            }
+            MessageBox.Show("Data exported.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
     }
 
     private void AddDataFromClipboard(object parameter)

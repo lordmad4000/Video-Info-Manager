@@ -21,6 +21,7 @@ namespace VideoInfoManager.Presentation.CrossCutting.Services
         string RenameVideoInfoName(string videoInfoName);
         string SubstringOfString(string text, int startIndex, int length = 0);
         string RemoveFirstItem(string sourceText);
+        List<VideoInfoDTO>? GetAllDataOrderByName();
 
     }
 }
