@@ -6,13 +6,13 @@ using VideoInfoManager.Domain.Interfaces;
 
 namespace VideoInfoManager.Application.Test.UnitTests;
 
-public class VideoInfoManagerAppServiceTests
+public class VideoInfoManagerPresentationAppServiceTests
 {
     private readonly Mock<IVideoInfoRepository> _mockVideoInfoRepository;
     private readonly IVideoInfoAppService _videoInfoAppService;
     private readonly IVideoInfoManagerAppService _videoInfoManagerAppService;
 
-    public VideoInfoManagerAppServiceTests()
+    public VideoInfoManagerPresentationAppServiceTests()
     {
         _mockVideoInfoRepository = new Mock<IVideoInfoRepository>();
         _videoInfoAppService = new VideoInfoAppService(_mockVideoInfoRepository.Object);

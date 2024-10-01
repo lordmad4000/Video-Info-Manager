@@ -13,11 +13,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VideoInfoManager.Presentati
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "VideoInfoManager.Presentation", "VideoInfoManager.Presentation", "{8745B74D-42ED-4961-AF0C-DB755C503590}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VideoInfoManager.Application.Test", "test\VideoInfoManager.Application.Test\VideoInfoManager.Application.Test.csproj", "{A93735EE-10AB-41DA-B505-BD7C7BD0C680}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VideoInfoManager.Presentation.Wpf", "src\VideoInfoManager.Presentation\VideoInfoManager.Presentation.Wpf\VideoInfoManager.Presentation.Wpf.csproj", "{03C29E72-92CF-4B81-903B-28E87B2F7A9F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoInfoManager.Presentation.Crosscutting", "src\VideoInfoManager.Presentation\VideoInfoManager.Presentation.Crosscutting\VideoInfoManager.Presentation.Crosscutting.csproj", "{ADD6311B-D484-4A44-8BF2-FAABA25956AE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VideoInfoManager.Presentation.Crosscutting", "src\VideoInfoManager.Presentation\VideoInfoManager.Presentation.Crosscutting\VideoInfoManager.Presentation.Crosscutting.csproj", "{ADD6311B-D484-4A44-8BF2-FAABA25956AE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoInfoManager.Presentation.Crosscutting.Test", "test\VideoInfoManager.Presentation.Crosscutting.Test\VideoInfoManager.Presentation.Crosscutting.Test.csproj", "{1E6977A4-8B1E-432A-9D5B-360B6CBE773D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,10 +41,6 @@ Global
 		{7F300857-3782-4B97-9506-47EF30DC6866}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7F300857-3782-4B97-9506-47EF30DC6866}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7F300857-3782-4B97-9506-47EF30DC6866}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A93735EE-10AB-41DA-B505-BD7C7BD0C680}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A93735EE-10AB-41DA-B505-BD7C7BD0C680}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A93735EE-10AB-41DA-B505-BD7C7BD0C680}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A93735EE-10AB-41DA-B505-BD7C7BD0C680}.Release|Any CPU.Build.0 = Release|Any CPU
 		{03C29E72-92CF-4B81-903B-28E87B2F7A9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{03C29E72-92CF-4B81-903B-28E87B2F7A9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{03C29E72-92CF-4B81-903B-28E87B2F7A9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -53,6 +49,10 @@ Global
 		{ADD6311B-D484-4A44-8BF2-FAABA25956AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ADD6311B-D484-4A44-8BF2-FAABA25956AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ADD6311B-D484-4A44-8BF2-FAABA25956AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E6977A4-8B1E-432A-9D5B-360B6CBE773D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E6977A4-8B1E-432A-9D5B-360B6CBE773D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E6977A4-8B1E-432A-9D5B-360B6CBE773D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E6977A4-8B1E-432A-9D5B-360B6CBE773D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
