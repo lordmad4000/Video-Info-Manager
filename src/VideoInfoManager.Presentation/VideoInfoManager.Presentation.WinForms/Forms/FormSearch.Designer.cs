@@ -52,10 +52,10 @@ partial class FormSearch
         pnAddData = new Panel();
         btnLowed = new Button();
         btnExport = new Button();
-        btnSearch = new Button();
+        btnSearchByAuthor = new Button();
         btnClear = new Button();
         btnCutFirst = new Button();
-        btnPastertbVideoInfo = new Button();
+        btnPasteAndRename = new Button();
         rtbVideoInfo = new RichTextBox();
         btnDeleted = new Button();
         btnBackuped = new Button();
@@ -297,10 +297,10 @@ partial class FormSearch
         // 
         pnAddData.Controls.Add(btnLowed);
         pnAddData.Controls.Add(btnExport);
-        pnAddData.Controls.Add(btnSearch);
+        pnAddData.Controls.Add(btnSearchByAuthor);
         pnAddData.Controls.Add(btnClear);
         pnAddData.Controls.Add(btnCutFirst);
-        pnAddData.Controls.Add(btnPastertbVideoInfo);
+        pnAddData.Controls.Add(btnPasteAndRename);
         pnAddData.Controls.Add(rtbVideoInfo);
         pnAddData.Controls.Add(btnDeleted);
         pnAddData.Controls.Add(btnBackuped);
@@ -327,27 +327,27 @@ partial class FormSearch
         // 
         // btnExport
         // 
-        btnExport.Location = new Point(420, 120);
+        btnExport.Location = new Point(410, 120);
         btnExport.Name = "btnExport";
-        btnExport.Size = new Size(70, 45);
+        btnExport.Size = new Size(80, 45);
         btnExport.TabIndex = 14;
-        btnExport.Text = "Export";
+        btnExport.Text = "Export Data";
         btnExport.UseVisualStyleBackColor = true;
         btnExport.Click += btnExport_Click;
         // 
-        // btnSearch
+        // btnSearchByAuthor
         // 
-        btnSearch.Location = new Point(228, 120);
-        btnSearch.Name = "btnSearch";
-        btnSearch.Size = new Size(70, 45);
-        btnSearch.TabIndex = 13;
-        btnSearch.Text = "Search";
-        btnSearch.UseVisualStyleBackColor = true;
-        btnSearch.Click += btnSearch_Click;
+        btnSearchByAuthor.Location = new Point(270, 120);
+        btnSearchByAuthor.Name = "btnSearchByAuthor";
+        btnSearchByAuthor.Size = new Size(110, 45);
+        btnSearchByAuthor.TabIndex = 13;
+        btnSearchByAuthor.Text = "Search by Author";
+        btnSearchByAuthor.UseVisualStyleBackColor = true;
+        btnSearchByAuthor.Click += btnSearchByAuthor_Click;
         // 
         // btnClear
         // 
-        btnClear.Location = new Point(152, 120);
+        btnClear.Location = new Point(194, 120);
         btnClear.Name = "btnClear";
         btnClear.Size = new Size(70, 45);
         btnClear.TabIndex = 12;
@@ -357,7 +357,7 @@ partial class FormSearch
         // 
         // btnCutFirst
         // 
-        btnCutFirst.Location = new Point(76, 120);
+        btnCutFirst.Location = new Point(118, 120);
         btnCutFirst.Name = "btnCutFirst";
         btnCutFirst.Size = new Size(70, 45);
         btnCutFirst.TabIndex = 11;
@@ -365,15 +365,15 @@ partial class FormSearch
         btnCutFirst.UseVisualStyleBackColor = true;
         btnCutFirst.Click += btnCutFirst_Click;
         // 
-        // btnPastertbVideoInfo
+        // btnPasteAndRename
         // 
-        btnPastertbVideoInfo.Location = new Point(0, 120);
-        btnPastertbVideoInfo.Name = "btnPastertbVideoInfo";
-        btnPastertbVideoInfo.Size = new Size(70, 45);
-        btnPastertbVideoInfo.TabIndex = 10;
-        btnPastertbVideoInfo.Text = "Paste";
-        btnPastertbVideoInfo.UseVisualStyleBackColor = true;
-        btnPastertbVideoInfo.Click += btnPastertbVideoInfo_Click;
+        btnPasteAndRename.Location = new Point(0, 120);
+        btnPasteAndRename.Name = "btnPasteAndRename";
+        btnPasteAndRename.Size = new Size(112, 45);
+        btnPasteAndRename.TabIndex = 10;
+        btnPasteAndRename.Text = "Paste and Rename";
+        btnPasteAndRename.UseVisualStyleBackColor = true;
+        btnPasteAndRename.Click += btnPasteAndRename_Click;
         // 
         // rtbVideoInfo
         // 
@@ -486,10 +486,10 @@ partial class FormSearch
     private Button btnSaved;
     private Button btnPended;
     private RichTextBox rtbVideoInfo;
-    private Button btnPastertbVideoInfo;
+    private Button btnPasteAndRename;
     private Button btnCutFirst;
     private Button btnClear;
-    private Button btnSearch;
+    private Button btnSearchByAuthor;
     private Button btnExport;
     private Button btnLowed;
     private Panel pnModify;

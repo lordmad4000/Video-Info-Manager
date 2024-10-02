@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using VideoInfoManager.Presentation.CrossCutting.Extensions;
 using VideoInfoManager.Presentation.WinForms.Configuration;
 using VideoInfoManager.Presentation.WinForms.Forms;
 
@@ -19,13 +20,17 @@ internal static class Program
         System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
 
         var services = new ServiceCollection();
-        ConfigureServices.AddDbContext(services);
-        ConfigureServices.AddConfiguration(services);
-        ConfigureServices.AddServices(services);
+
+        services.AddPresentationCrosscuttingServices()
+                .AddApplicationServices()
+                .AddInfraServices()
+                .AddDbContext()
+                .AddConfiguration()
+                .AddServices();
 
         using (ServiceProvider serviceProvider = services.BuildServiceProvider())
         {
-            ConfigureServices.DataBaseEnsureCreated(serviceProvider);
+            serviceProvider.DataBaseEnsureCreated();
             var formSearch = serviceProvider.GetRequiredService<FormSearch>();
             System.Windows.Forms.Application.Run(formSearch);
         }

@@ -19,6 +19,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\VideoInfoManager.Application\VideoInfoManager.Application.csproj" />
 		<ProjectReference Include="..\..\VideoInfoManager.Infra\VideoInfoManager.Infra.csproj" />
+		<ProjectReference Include="..\VideoInfoManager.Presentation.Crosscutting\VideoInfoManager.Presentation.Crosscutting.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

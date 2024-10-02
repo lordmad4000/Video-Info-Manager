@@ -1,37 +1,33 @@
 ﻿using System.ComponentModel;
 using System.Text;
-using System.Data;
 using VideoInfoManager.Application.Interfaces;
 using VideoInfoManager.Application.DTOs;
 using VideoInfoManager.Presentation.WinForms.Helpers;
 using VideoInfoManager.Domain.Enums;
-using Microsoft.Extensions.Configuration;
-using VideoInfoManager.Presentation.WinForms.Models;
-using VideoInfoManager.Application.Models;
+using VideoInfoManager.Presentation.CrossCutting.Models;
+using VideoInfoManager.Presentation.CrossCutting.Services;
+using VideoInfoManager.Presentation.Crosscutting.Extensions;
 
 namespace VideoInfoManager.Presentation.WinForms.Forms;
 
 public partial class FormSearch : Form
 {
     private const int MinSearchLength = 3;
-
-    private List<VideoInfoStatus> _videoInfoStatuses = new List<VideoInfoStatus>();
-    private string[]? _lastSearch { get; set; } = null;
-    private IEnumerable<VideoInfoDTO>? _lastSearchData { get; set; } = null;
     private VideoInfoDTO? _videoInfoSelected { get; set; } = null;
 
     private readonly IVideoInfoAppService _videoInfoAppService;
-    private readonly IVideoInfoManagerAppService _videoInfoManagerAppService;
-    private readonly IConfiguration _configuration;
-    private readonly VideoInfoRenameConfiguration[]? _videoInfoRenameConfigurations;
+    private readonly IVideoInfoManagerPresentationAppService _videoInfoManagerPresentationAppService;
 
-    public FormSearch(IVideoInfoAppService videoInfoAppService, IVideoInfoManagerAppService videoInfoManagerAppService, IConfiguration configuration)
+    public FormSearch(IVideoInfoAppService videoInfoAppService, IVideoInfoManagerPresentationAppService videoInfoManagerPresentationAppService)
     {
         _videoInfoAppService = videoInfoAppService;
-        _videoInfoManagerAppService = videoInfoManagerAppService;
-        _configuration = configuration;
-        _videoInfoRenameConfigurations = _configuration.GetSection("VideoInfoRenameConfiguration").Get<VideoInfoRenameConfiguration[]>();
-        Initialize();
+        _videoInfoManagerPresentationAppService = videoInfoManagerPresentationAppService;
+        InitializeComponent();
+        InitializeStatusComponents();
+        InitializeMultipleSearchBox();
+        InitializeContextMenu();
+        InitializeWindow();
+        ResizeControls();
     }
 
     #region PRIVATE EVENTS
@@ -42,7 +38,7 @@ public partial class FormSearch : Form
     private void btnModifyCancel_Click(object sender, EventArgs e)
     {
         ShowSearch();
-        Search(_lastSearch, true);
+        ExecuteLastSearch();
     }
 
     private void btnModifySave_Click(object sender, EventArgs e)
@@ -53,17 +49,16 @@ public partial class FormSearch : Form
             Name = tbModifyName.Text,
             Status = GetModifySelectedStatus(),
         };
-        
+
         if (MessageBox.Show($"Update Data to Data Base?", "Update Data", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
         {
             if (_videoInfoAppService.Update(videoInfoDTO) == true)
             {
                 MessageBox.Show($"{videoInfoDTO.Name} Updated.");
+                ExecuteLastSearch();
+                ShowSearch();
             }
         }
-
-        ShowSearch();
-        Search(_lastSearch, true);
     }
 
     private void tbSearch_TextChanged(object sender, EventArgs e)
@@ -82,10 +77,7 @@ public partial class FormSearch : Form
 
     private void cbStatus_Changed(object sender, EventArgs e)
     {
-        if (_lastSearchData != null && _lastSearchData.Count() > 0)
-        {
-            AddDataTodgvVideoInfo(_lastSearchData);
-        }
+        ExecuteLastSearch();
     }
 
     private void btnPaste_Click(object sender, EventArgs e)
@@ -107,7 +99,7 @@ public partial class FormSearch : Form
         ShowSearch();
     }
 
-    private void btnPastertbVideoInfo_Click(object sender, EventArgs e)
+    private void btnPasteAndRename_Click(object sender, EventArgs e)
     {
         if (Clipboard.ContainsText())
         {
@@ -118,7 +110,7 @@ public partial class FormSearch : Form
                 var text = new StringBuilder();
                 foreach (string item in splitText)
                 {
-                    string videoName = _videoInfoManagerAppService.RenameVideoInfoName(item, _videoInfoRenameConfigurations);
+                    string videoName = _videoInfoManagerPresentationAppService.RenameVideoInfoName(item);
                     text.Append($"{videoName}{Environment.NewLine}");
                 }
                 rtbVideoInfo.Text += text;
@@ -134,7 +126,7 @@ public partial class FormSearch : Form
                 {
                     if (file is not null)
                     {
-                        text.Append($"{_videoInfoAppService.NormalizeFileName(file)}{Environment.NewLine}");
+                        text.Append($"{_videoInfoManagerPresentationAppService.NormalizeFileName(file)}{Environment.NewLine}");
                     }
                 }
                 rtbVideoInfo.Text += text;
@@ -144,34 +136,39 @@ public partial class FormSearch : Form
 
     private void btnCutFirst_Click(object sender, EventArgs e)
     {
-        string text = rtbVideoInfo.Text;
-        if (String.IsNullOrWhiteSpace(text) is false)
+        if (string.IsNullOrWhiteSpace(rtbVideoInfo.Text))
         {
-            var splitText = text.Split("\n", StringSplitOptions.RemoveEmptyEntries);
-            if (splitText.Length > 0)
-            {
-                string cutText = splitText[0];
-                rtbVideoInfo.Text = "";
-                for (int i = 1; i < splitText.Length; i++)
-                {
-                    rtbVideoInfo.Text += $"{splitText[i]}{Environment.NewLine}";
-                }
-                Clipboard.SetText(cutText);
-            }
+            return;
+        }
+
+        string result = _videoInfoManagerPresentationAppService.RemoveFirstItem(rtbVideoInfo.Text);
+        string cutText = string.IsNullOrEmpty(result) is true
+                         ? rtbVideoInfo.Text
+                         : rtbVideoInfo.Text.Replace(result, ""); ;
+
+        if (string.IsNullOrEmpty(cutText) is false)
+        {
+            Clipboard.SetText(cutText.RemoveNewLine());
+            rtbVideoInfo.Text = result;
         }
     }
 
-    private void btnSearch_Click(object sender, EventArgs e)
+    private void btnSearchByAuthor_Click(object sender, EventArgs e)
     {
-        string text = rtbVideoInfo.Text;
-        if (String.IsNullOrWhiteSpace(text) is false)
+        if (string.IsNullOrEmpty(rtbVideoInfo.Text))
         {
-            var splitText = text.Split("\n", StringSplitOptions.RemoveEmptyEntries);
-            if (splitText.Length > 0)
-            {
-                Search(splitText, true);
-            }
+            return;
         }
+
+        var search = new string[] { rtbVideoInfo.Text };
+        string[] lines = rtbVideoInfo.Text.SplitNewLine(StringSplitOptions.None);
+        if (lines.Count() > 1)
+        {
+            search = lines;
+        }
+
+        _videoInfoManagerPresentationAppService.Search(search, GetActiveStatus(), true);
+        AddDataTodgvVideoInfo(_videoInfoManagerPresentationAppService.GetResults());
 
         ShowSearch();
     }
@@ -180,41 +177,25 @@ public partial class FormSearch : Form
     {
         if (Clipboard.ContainsText())
         {
-            string clipBoardText = Clipboard.GetText();
-            if (string.IsNullOrEmpty(clipBoardText) == false)
+            string data = Clipboard.GetText();
+            if (string.IsNullOrEmpty(data) == false)
             {
-                var data = new DataObject();
-                data.SetData("Text", clipBoardText);
-                var dragEventArgs = new DragEventArgs(data, 0, 0, 0, DragDropEffects.All, DragDropEffects.Copy);
-                AddData_DragDrop(sender, dragEventArgs);
+                AddData(sender, data);
             }
         }
         if (Clipboard.ContainsFileDropList())
         {
-            var fileDrop = Clipboard.GetData("FileDrop");
-            if (fileDrop != null)
+            string[]? data = (string[]?)Clipboard.GetData("FileDrop");
+            if (data != null)
             {
-                var data = new DataObject();
-                data.SetData("FileDrop", fileDrop);
-                var dragEventArgs = new DragEventArgs(data, 0, 0, 0, DragDropEffects.All, DragDropEffects.Copy);
-                AddData_DragDrop(sender, dragEventArgs);
+                AddData(sender, NormalizeAndConvertToStringWithNewLineSeparators(data));
             }
         }
     }
 
     private void AddData_DragEnter(object sender, DragEventArgs e)
     {
-        if (e != null && e.Data != null)
-        {
-            if (e.Data.GetDataPresent(DataFormats.Text))
-            {
-                e.Effect = DragDropEffects.Copy;
-            }
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                e.Effect = DragDropEffects.Copy;
-            }
-        }
+        e.Effect = DragDropEffects.Copy;
     }
 
     private void AddData_DragDrop(object sender, DragEventArgs e)
@@ -223,73 +204,33 @@ public partial class FormSearch : Form
         {
             return;
         }
-        string? textData = null;
         if (e.Data.GetDataPresent(DataFormats.Text))
         {
-            var dragDropData = e.Data.GetData(DataFormats.Text);
-            if (dragDropData != null)
+            string? data = (string?)e.Data.GetData(DataFormats.Text);
+            if (data != null)
             {
-                textData = dragDropData.ToString();
+                AddData(sender, data.ToString());
             }
         }
         else if (e.Data.GetDataPresent(DataFormats.FileDrop))
         {
-            var dragDropData = e.Data.GetData(DataFormats.FileDrop, true);
-            if (dragDropData != null)
+            string[]? data = (string[]?)e.Data.GetData(DataFormats.FileDrop, true);
+            if (data != null)
             {
-                var fileList = (string[])dragDropData;
-                var text = new StringBuilder();
-                foreach (var file in fileList)
-                {
-                    string normalizedFileName = _videoInfoAppService.NormalizeFileName(file);
-                    text.Append($"{normalizedFileName}{Environment.NewLine}");
-                }
-                textData = text.ToString();
-            }
-        }
-        if (textData != null)
-        {
-            if (sender.GetType() == typeof(Button))
-            {
-                var button = sender as Button;
-                if (button != null)
-                {
-                    if (MessageBox.Show($"Add/Update {GetVideoInfoStatusByConfigurationName(button.Text).ConfigurationName} Data to Data Base?", "Add/Update Data", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                    {
-                        var results = _videoInfoManagerAppService.ProcessData(textData, GetVideoInfoStatusByConfigurationName(button.Text).Status);
-                        if (string.IsNullOrEmpty(results) == false)
-                        {
-                            string state = results.Split('[', ']')[1];
-                            VideoInfoStatus videoInfoStatus = GetVideoInfoStatusByStatusName(state);
-                            results = results.Replace(state, videoInfoStatus.ConfigurationName);
-                            MessageBox.Show(results);
-                        }
-                    }
-                }
-            }
-            if (sender.GetType() == typeof(RichTextBox))
-            {
-                var rtb = sender as RichTextBox;
-                if (rtb != null)
-                {
-                    rtb.Text += textData;
-                }
+                AddData(sender, NormalizeAndConvertToStringWithNewLineSeparators(data));
             }
         }
     }
 
     private void btnExport_Click(object sender, EventArgs e)
     {
-        var videoInfoDTOs = _videoInfoAppService.GetManyContains("");
+        List<VideoInfoDTO>? sortedVideoInfo = _videoInfoManagerPresentationAppService.GetAllDataOrderByName();
 
-        if (videoInfoDTOs is null || videoInfoDTOs.Count() == 0)
+        if (sortedVideoInfo is null || sortedVideoInfo.Count() == 0)
         {
             MessageBox.Show("No data found.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
             return;
         }
-
-        List<VideoInfoDTO> sortedVideoInfo = videoInfoDTOs.OrderBy(c => c.Name)                                                         
-                                                          .ToList();
 
         var saveFileDialog = new SaveFileDialog();
         saveFileDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
@@ -357,8 +298,7 @@ public partial class FormSearch : Form
         if (_videoInfoAppService.Remove(_videoInfoSelected.Id) == true)
         {
             MessageBox.Show($"{_videoInfoSelected.Name} Removed.");
-            if (_lastSearch?.Count() > 0)
-                Search(_lastSearch);
+            ExecuteLastSearch();
         }
     }
 
@@ -373,17 +313,25 @@ public partial class FormSearch : Form
         dgvVideoInfo.Height = pnSearch.Height - 90;
     }
 
+    private void ExecuteLastSearch()
+    {
+        _videoInfoManagerPresentationAppService.LastSearch(GetActiveStatus(), true);
+
+        List<VideoInfoDTO> lastSearchData = _videoInfoManagerPresentationAppService.GetResults();
+
+        if (lastSearchData != null && lastSearchData.Count() > 0)
+        {
+            AddDataTodgvVideoInfo(lastSearchData);
+        }
+    }
+
     private void Search(string[]? search, bool isVideoName = false)
     {
         if (search is null || search.Count() == 0)
             return;
 
-        _lastSearch = search;
-        _lastSearchData = isVideoName == true
-                     ? _videoInfoManagerAppService.GetManyVideoInfo(search, _videoInfoRenameConfigurations)
-                     : _videoInfoAppService.GetManyContains(search[0]);
-
-        AddDataTodgvVideoInfo(_lastSearchData);
+        _videoInfoManagerPresentationAppService.Search(search, GetActiveStatus());
+        AddDataTodgvVideoInfo(_videoInfoManagerPresentationAppService.GetResults());
     }
 
     private IEnumerable<VideoInfoDTO> GetVideoInfoWithConfigurationNames(IEnumerable<VideoInfoDTO> videoInfoDTOs)
@@ -405,28 +353,11 @@ public partial class FormSearch : Form
         return videoInfoWithConfigurationNames;
     }
 
-    private void AddDataTodgvVideoInfo(IEnumerable<VideoInfoDTO> videoInfoDTOs)
+    private void AddDataTodgvVideoInfo(List<VideoInfoDTO> videoInfoDTOs)
     {
         try
         {
-            var data = videoInfoDTOs.Where(c => GetActiveStatus().Contains(c.StatusToVideoInfoStatusEnum())).ToList();
-            var multipleAuthors = data.Where(c => _videoInfoManagerAppService.IsMultipleAuthor(c.Name, _videoInfoRenameConfigurations));
-            var singleAuthor = data.Where(c => _videoInfoManagerAppService.IsMultipleAuthor(c.Name, _videoInfoRenameConfigurations) is false);
-            var videoInforSearchList = new List<VideoInfoDTO>();
-
-            if (singleAuthor.Any())
-            {
-                videoInforSearchList.AddRange(singleAuthor.OrderBy(c => c.Name)
-                                                          .ThenByDescending(c => c.Status));
-            }
-            if (multipleAuthors.Any())
-            {
-                videoInforSearchList.AddRange(multipleAuthors.OrderBy(c => c.Name)
-                                                             .ThenByDescending(c => c.Status));
-            }
-
-            videoInforSearchList = GetVideoInfoWithConfigurationNames(videoInforSearchList).ToList();
-            var bindingList = new BindingList<VideoInfoDTO>(videoInforSearchList);
+            var bindingList = new BindingList<VideoInfoDTO>(videoInfoDTOs);
             var source = new BindingSource(bindingList, null);
             dgvVideoInfo.DataSource = source;
 
@@ -475,48 +406,6 @@ public partial class FormSearch : Form
         dgvVideoInfo.Visible = true;
     }
 
-    private void InitializeVideoInfoStatuses()
-    {
-        string[]? configurationStatusNames = _configuration.GetSection("StatusNames").Get<string[]>();
-        var statuses = Enum.GetValues(typeof(VideoInfoStatusEnum))
-                           .Cast<VideoInfoStatusEnum>();
-
-        foreach (var (status, index) in statuses.Select((status, index) => (status, index)))
-        {
-            var videoInfoStatus = new VideoInfoStatus
-            {
-                ConfigurationName = status.ToString(),
-                StatusName = status.ToString(),
-                Status = status
-            };
-
-            if (configurationStatusNames?.Length > index)
-            {
-                videoInfoStatus.ConfigurationName = configurationStatusNames[index];
-            }
-
-            _videoInfoStatuses.Add(videoInfoStatus);
-        }
-    }
-
-    private string[] GetStatusNames(string[]? configurationStatusNames)
-    {
-        var statusNames = Enum.GetNames(typeof(VideoInfoStatusEnum)).ToArray();
-
-        if (configurationStatusNames?.Length == statusNames.Length)
-        {
-            for (int i = 0; i < statusNames.Length; i++)
-            {
-                statusNames[i] = configurationStatusNames[i];
-            }
-        }
-
-        return statusNames;
-    }
-
-    private string[] GetVideoInfoStatusEnumNames() =>
-        Enum.GetNames(typeof(VideoInfoStatusEnum)).ToArray();
-
     private List<VideoInfoStatusEnum> GetActiveStatus()
     {
         var activeStatus = new List<VideoInfoStatusEnum>();
@@ -554,24 +443,14 @@ public partial class FormSearch : Form
         var status = cbModifyStatus.GetItemText(cbModifyStatus.SelectedItem);
 
         if (status is null)
-            status = _videoInfoStatuses[0].Status.ToString();
+            status = _videoInfoManagerPresentationAppService.GetVideoInfoStatuses()[0].Status.ToString();
 
         return GetVideoInfoStatusByConfigurationName(status).StatusName;
     }
 
-    private VideoInfoStatus GetVideoInfoStatusByStatus(VideoInfoStatusEnum status)
-    {
-        var videoinfoStatus = _videoInfoStatuses.FirstOrDefault(c => c.Status.Equals(status));
-        if (videoinfoStatus is null)
-            return new VideoInfoStatus();
-
-        return videoinfoStatus;
-
-    }
-
     private VideoInfoStatus GetVideoInfoStatusByConfigurationName(string configurationName)
     {
-        VideoInfoStatus? videoinfoStatus = _videoInfoStatuses.FirstOrDefault(c => c.ConfigurationName.Equals(configurationName));
+        VideoInfoStatus? videoinfoStatus = _videoInfoManagerPresentationAppService.GetVideoInfoStatuses().FirstOrDefault(c => c.ConfigurationName.Equals(configurationName));
         if (videoinfoStatus is null)
             return new VideoInfoStatus();
 
@@ -580,7 +459,7 @@ public partial class FormSearch : Form
 
     private VideoInfoStatus GetVideoInfoStatusByStatusName(string statusName)
     {
-        VideoInfoStatus? videoinfoStatus = _videoInfoStatuses.FirstOrDefault(c => c.StatusName.Equals(statusName));
+        VideoInfoStatus? videoinfoStatus = _videoInfoManagerPresentationAppService.GetVideoInfoStatuses().FirstOrDefault(c => c.StatusName.Equals(statusName));
         if (videoinfoStatus is null)
             return new VideoInfoStatus();
 
@@ -589,23 +468,12 @@ public partial class FormSearch : Form
 
     private int GetStatusIndexByName(string configurationName)
     {
-        int index = _videoInfoStatuses.FindIndex(c => c.ConfigurationName.Equals(configurationName));
+        int index = _videoInfoManagerPresentationAppService.GetVideoInfoStatuses().FindIndex(c => c.ConfigurationName.Equals(configurationName));
 
         if (index == -1)
             return 0;
 
         return index;
-    }
-
-    private void Initialize()
-    {
-        InitializeComponent();
-        InitializeVideoInfoStatuses();
-        InitializeStatusComponents();
-        InitializeMultipleSearchBox();
-        InitializeContextMenu();
-        InitializeWindow();
-        ResizeControls();
     }
 
     private void InitializeWindow()
@@ -639,22 +507,73 @@ public partial class FormSearch : Form
 
     private void InitializeStatusComponents()
     {
-        btnPended.Text = _videoInfoStatuses[0].ConfigurationName;
-        btnSaved.Text = _videoInfoStatuses[1].ConfigurationName;
-        btnBackuped.Text = _videoInfoStatuses[2].ConfigurationName;
-        btnDeleted.Text = _videoInfoStatuses[3].ConfigurationName;
-        btnLowed.Text = _videoInfoStatuses[4].ConfigurationName;
-        cbP.Text = _videoInfoStatuses[0].ConfigurationName;
-        cbS.Text = _videoInfoStatuses[1].ConfigurationName;
-        cbB.Text = _videoInfoStatuses[2].ConfigurationName;
-        cbD.Text = _videoInfoStatuses[3].ConfigurationName;
-        cbL.Text = _videoInfoStatuses[4].ConfigurationName;
+        btnPended.Text = _videoInfoManagerPresentationAppService.GetVideoInfoStatuses()[0].ConfigurationName;
+        btnSaved.Text = _videoInfoManagerPresentationAppService.GetVideoInfoStatuses()[1].ConfigurationName;
+        btnBackuped.Text = _videoInfoManagerPresentationAppService.GetVideoInfoStatuses()[2].ConfigurationName;
+        btnDeleted.Text = _videoInfoManagerPresentationAppService.GetVideoInfoStatuses()[3].ConfigurationName;
+        btnLowed.Text = _videoInfoManagerPresentationAppService.GetVideoInfoStatuses()[4].ConfigurationName;
+        cbP.Text = _videoInfoManagerPresentationAppService.GetVideoInfoStatuses()[0].ConfigurationName;
+        cbS.Text = _videoInfoManagerPresentationAppService.GetVideoInfoStatuses()[1].ConfigurationName;
+        cbB.Text = _videoInfoManagerPresentationAppService.GetVideoInfoStatuses()[2].ConfigurationName;
+        cbD.Text = _videoInfoManagerPresentationAppService.GetVideoInfoStatuses()[3].ConfigurationName;
+        cbL.Text = _videoInfoManagerPresentationAppService.GetVideoInfoStatuses()[4].ConfigurationName;
 
-        foreach (var videoInfoStatus in _videoInfoStatuses)
+        foreach (var videoInfoStatus in _videoInfoManagerPresentationAppService.GetVideoInfoStatuses())
         {
             cbModifyStatus.Items.Add(videoInfoStatus.ConfigurationName);
         }
     }
 
+    private void AddData(object sender, string? textData)
+    {
+        if (textData != null)
+        {
+            if (sender.GetType() == typeof(Button))
+            {
+                var button = sender as Button;
+                if (button != null)
+                {
+                    if (MessageBox.Show($"Add/Update {GetVideoInfoStatusByConfigurationName(button.Text).ConfigurationName} Data to Data Base?", "Add/Update Data", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                    {
+                        var results = _videoInfoManagerPresentationAppService.ProcessData(textData, button.Text);
+                        if (string.IsNullOrEmpty(results) == false)
+                        {
+                            string state = results.Split('[', ']')[1];
+                            VideoInfoStatus videoInfoStatus = GetVideoInfoStatusByStatusName(state);
+                            results = results.Replace(state, videoInfoStatus.ConfigurationName);
+                            MessageBox.Show(results);
+                        }
+                    }
+                }
+            }
+            if (sender.GetType() == typeof(RichTextBox))
+            {
+                var rtb = sender as RichTextBox;
+                if (rtb != null)
+                {
+                    rtb.Text += textData;
+                }
+            }
+        }
+    }
+
+    private string? NormalizeAndConvertToStringWithNewLineSeparators(string[] data)
+    {
+        if (data is null)
+        {
+            return null;
+        }
+        var text = new StringBuilder();
+        foreach (var file in data)
+        {
+            string normalizedFileName = _videoInfoManagerPresentationAppService.NormalizeFileName(file);
+            text.Append($"{normalizedFileName}{Environment.NewLine}");
+        }
+
+        return text.ToString();
+    }
+
+
     #endregion PRIVATE FUNCIONS
+
 }
