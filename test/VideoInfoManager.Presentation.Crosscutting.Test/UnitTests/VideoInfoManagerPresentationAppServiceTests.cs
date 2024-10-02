@@ -1,8 +1,9 @@
+using Microsoft.Extensions.Configuration;
 using Moq;
 using VideoInfoManager.Application.Interfaces;
-using VideoInfoManager.Application.Models;
 using VideoInfoManager.Application.Services;
 using VideoInfoManager.Domain.Interfaces;
+using VideoInfoManager.Presentation.CrossCutting.Services;
 
 namespace VideoInfoManager.Application.Test.UnitTests;
 
@@ -10,13 +11,17 @@ public class VideoInfoManagerPresentationAppServiceTests
 {
     private readonly Mock<IVideoInfoRepository> _mockVideoInfoRepository;
     private readonly IVideoInfoAppService _videoInfoAppService;
-    private readonly IVideoInfoManagerAppService _videoInfoManagerAppService;
+    private readonly IVideoInfoManagerPresentationAppService _videoInfoManagerPresentationAppService;
+    private readonly IConfiguration _configuration;
 
     public VideoInfoManagerPresentationAppServiceTests()
     {
         _mockVideoInfoRepository = new Mock<IVideoInfoRepository>();
         _videoInfoAppService = new VideoInfoAppService(_mockVideoInfoRepository.Object);
-        _videoInfoManagerAppService = new VideoInfoManagerAppService(_videoInfoAppService);
+        _configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                                                   .Build();
+
+        _videoInfoManagerPresentationAppService = new VideoInfoManagerPresentationAppService(_videoInfoAppService, _configuration);
     }
 
     [Theory]
@@ -25,10 +30,9 @@ public class VideoInfoManagerPresentationAppServiceTests
     public void RenameVideoInfoName_Should_Be_Expected(string videoInfoName, string expected)
     {
         // Arrange
-        var videoInfoRenameConfigurations = GetVideoInfoRenameConfigurations();
 
         // Act
-        var result = _videoInfoManagerAppService.RenameVideoInfoName(videoInfoName, videoInfoRenameConfigurations);
+        var result = _videoInfoManagerPresentationAppService.RenameVideoInfoName(videoInfoName);
 
         // Assert
         Assert.Equal(expected, result);
@@ -49,7 +53,7 @@ public class VideoInfoManagerPresentationAppServiceTests
         string text = "SubstringOfStringTest";
 
         // Act
-        var result = _videoInfoManagerAppService.SubstringOfString(text, startIndex, length);
+        var result = _videoInfoManagerPresentationAppService.SubstringOfString(text, startIndex, length);
 
         // Assert
         Assert.Equal(expected, result);
@@ -62,7 +66,7 @@ public class VideoInfoManagerPresentationAppServiceTests
         string text = "";
 
         // Act
-        var result = _videoInfoManagerAppService.SubstringOfString(text, 0, 10);
+        var result = _videoInfoManagerPresentationAppService.SubstringOfString(text, 0, 10);
 
         // Assert
         Assert.Equal(string.Empty, result);
@@ -76,7 +80,7 @@ public class VideoInfoManagerPresentationAppServiceTests
 
         // Act
 #pragma warning disable CS8604 // Posible argumento de referencia nulo
-        var result = _videoInfoManagerAppService.SubstringOfString(text, 0, 10);
+        var result = _videoInfoManagerPresentationAppService.SubstringOfString(text, 0, 10);
 #pragma warning restore CS8604 // Posible argumento de referencia nulo
 
         // Assert
@@ -91,10 +95,9 @@ public class VideoInfoManagerPresentationAppServiceTests
     public void IsMultipleAuthor_Should_Be_Expected(string fullName, bool expected)
     {
         // Arrange
-        var videoInfoRenameConfigurations = GetVideoInfoRenameConfigurations();
 
         // Act
-        var result = _videoInfoManagerAppService.IsMultipleAuthor(fullName, videoInfoRenameConfigurations);
+        var result = _videoInfoManagerPresentationAppService.IsMultipleAuthor(fullName);
 
         // Assert
         Assert.Equal(expected, result);
@@ -104,7 +107,6 @@ public class VideoInfoManagerPresentationAppServiceTests
     public void GetOnlyAuthors_Should_Be_Expected()
     {
         // Arrange
-        var videoInfoRenameConfigurations = GetVideoInfoRenameConfigurations();
 
         var videoInfoNames = new List<string>
         {
@@ -123,45 +125,11 @@ public class VideoInfoManagerPresentationAppServiceTests
         };
 
         // Act
-        var result = _videoInfoManagerAppService.GetOnlyAuthors(videoInfoNames, videoInfoRenameConfigurations)
-                                                .ToList();
+        var result = _videoInfoManagerPresentationAppService.GetOnlyAuthors(videoInfoNames)
+                                                            .ToList();
 
         // Assert
         Assert.Equal<string>(expected, result);
-    }
-
-    private VideoInfoRenameConfiguration[] GetVideoInfoRenameConfigurations()
-    {
-        return new VideoInfoRenameConfiguration[]
-        {
-            new VideoInfoRenameConfiguration
-            {
-                Position = 1,
-                FirstDelimiter = [ "[" ],
-                LastDelimiter = [ "]" ],
-                IgnoreDelimiter = [ "/" ],
-                WordsToDelete = [ ".com", "[", "]", ":", "(", ")", "-", ",", "/", "\\" ],
-                Separator = " - "
-            },
-            new VideoInfoRenameConfiguration
-            {
-                Position = 0,
-                FirstDelimiter = [ "" ],
-                LastDelimiter = [ "-", "(" ],
-                WordsToDelete = [ ".com", "[", "]", ":", "(", ")", "-", "/", "\\" ],
-                Separator = " - ",
-                AuthorSeparators = [",", "&"]
-            },
-            new VideoInfoRenameConfiguration
-            {
-                Position = 2,
-                FirstDelimiter = [ "" ],
-                LastDelimiter = [ "" ],
-                IgnoreDelimiter = [ "/" ],
-                WordsToDelete = [ ".com", "[", "]", ":", "(", ")", "-", "/", "\\" ],
-            },
-        };
-
     }
 
 }

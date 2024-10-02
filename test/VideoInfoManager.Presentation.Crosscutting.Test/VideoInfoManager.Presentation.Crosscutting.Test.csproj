@@ -11,6 +11,8 @@
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="Moq" Version="4.20.70" />
     <PackageReference Include="xunit" Version="2.5.3" />
@@ -20,10 +22,17 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\VideoInfoManager.Application\VideoInfoManager.Application.csproj" />
     <ProjectReference Include="..\..\src\VideoInfoManager.Domain\VideoInfoManager.Domain.csproj" />
+    <ProjectReference Include="..\..\src\VideoInfoManager.Presentation\VideoInfoManager.Presentation.Crosscutting\VideoInfoManager.Presentation.Crosscutting.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
