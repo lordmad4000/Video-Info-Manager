@@ -25,13 +25,7 @@ public class VideoInfoAddDataViewModel : ViewModelBase
         _videoInfoManagerPresentationAppService = videoInfoManagerPresentationAppService;
         _videoInfoSearchViewModel = videoInfoSearchViewModel;
         _mainWindowViewModel = mainWindowViewModel;
-        AddDataCommand = new CommandHandler(AddDataFromClipboard, _ => true);
-        PasteToMultiSearchTextBoxCommand = new CommandHandler(PasteToMultiSearchTextBox, _ => true);
-        CutFirstFromMultiSearchTextBoxCommand = new CommandHandler(CutFirstFromMultiSearchTextBox, _ => true);
-        SearchCommand = new CommandHandler(SearchByAuthor, _ => true);
-        ClearMultiSearchTextBoxCommand = new CommandHandler(ClearMultiSearchTextBox, _ => true);
-        ExportDataCommand = new CommandHandler(ExportData, _ => true);        
-
+        InitializeCommands();
         InitializeButtons();
     }
 
@@ -110,10 +104,11 @@ public class VideoInfoAddDataViewModel : ViewModelBase
 
     public void AddData_DragDrop(object sender, DragEventArgs e)
     {
-        if (e.Data == null)
+        if (e.Data is null)
         {
             return;
         }
+
         if (e.Data.GetDataPresent(DataFormats.Text))
         {
             string? data = (string)e.Data.GetData(DataFormats.Text);
@@ -176,6 +171,7 @@ public class VideoInfoAddDataViewModel : ViewModelBase
         {
             return;
         }
+
         string result = _videoInfoManagerPresentationAppService.RemoveFirstItem(MultiSearchTextBoxText);
         string cutText = string.IsNullOrEmpty(result) is true
                          ? MultiSearchTextBoxText
@@ -194,8 +190,9 @@ public class VideoInfoAddDataViewModel : ViewModelBase
         {
             return;
         }
-        String[] lines = MultiSearchTextBoxText.Split(new String[] { Environment.NewLine }, StringSplitOptions.None);
+
         var search = new string[] { MultiSearchTextBoxText };
+        string[] lines = MultiSearchTextBoxText.SplitNewLine(StringSplitOptions.None);
         if (lines.Count() > 1)
         {
             search = lines;
@@ -274,6 +271,7 @@ public class VideoInfoAddDataViewModel : ViewModelBase
         {
             return null;
         }
+
         var text = new StringBuilder();
         foreach (var file in data)
         {
@@ -290,6 +288,7 @@ public class VideoInfoAddDataViewModel : ViewModelBase
         {
             return;
         }
+
         if (sender.GetType() == typeof(Button))
         {
             var button = sender as Button;
@@ -355,6 +354,16 @@ public class VideoInfoAddDataViewModel : ViewModelBase
         BackupedButtonContent = GetConfigurationNameByVideoInfoStatus(VideoInfoStatusEnum.Backuped);
         DeletedButtonContent = GetConfigurationNameByVideoInfoStatus(VideoInfoStatusEnum.Deleted);
         LowedButtonContent = GetConfigurationNameByVideoInfoStatus(VideoInfoStatusEnum.Lowed);
+    }
+
+    private void InitializeCommands()
+    {
+        AddDataCommand = new CommandHandler(AddDataFromClipboard, _ => true);
+        PasteToMultiSearchTextBoxCommand = new CommandHandler(PasteToMultiSearchTextBox, _ => true);
+        CutFirstFromMultiSearchTextBoxCommand = new CommandHandler(CutFirstFromMultiSearchTextBox, _ => true);
+        ClearMultiSearchTextBoxCommand = new CommandHandler(ClearMultiSearchTextBox, _ => true);
+        SearchCommand = new CommandHandler(SearchByAuthor, _ => true);
+        ExportDataCommand = new CommandHandler(ExportData, _ => true);
     }
 
 }

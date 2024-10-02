@@ -30,6 +30,7 @@ public class CommandHandler : ICommand
         }
     }
 
+#pragma warning disable CS8604 // Posible argumento de referencia nulo
     public bool CanExecute(object? parameter)
     {
         return _canExecute is null
@@ -41,5 +42,6 @@ public class CommandHandler : ICommand
     {
         _action(parameter);
     }
+#pragma warning restore CS8604 // Posible argumento de referencia nulo
 
 }
