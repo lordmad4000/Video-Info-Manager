@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using VideoInfoManager.Application.DTOs;
 using VideoInfoManager.Application.Interfaces;
-using VideoInfoManager.Application.Models;
 using VideoInfoManager.Domain.Enums;
 using VideoInfoManager.Presentation.Crosscutting.Extensions;
 using VideoInfoManager.Presentation.CrossCutting.Models;
@@ -11,9 +10,6 @@ namespace VideoInfoManager.Presentation.CrossCutting.Services;
 
 public class VideoInfoManagerPresentationAppService : IVideoInfoManagerPresentationAppService
 {
-
-    private const int MinSearchLength = 3;
-
     private List<VideoInfoStatus> _videoInfoStatuses = new List<VideoInfoStatus>();
     private string[]? _lastSearch { get; set; } = null;
     private IEnumerable<VideoInfoDTO>? _lastSearchData { get; set; } = null;
@@ -21,15 +17,13 @@ public class VideoInfoManagerPresentationAppService : IVideoInfoManagerPresentat
     private List<VideoInfoDTO> _results = new List<VideoInfoDTO>();
 
     private readonly IVideoInfoAppService _videoInfoAppService;
-    private readonly IVideoInfoManagerAppService _videoInfoManagerAppService;
     private readonly IConfiguration _configuration;
     private readonly VideoInfoRenameConfiguration[]? _videoInfoRenameConfigurations;
 
 
-    public VideoInfoManagerPresentationAppService(IVideoInfoAppService videoInfoAppService, IVideoInfoManagerAppService videoInfoManagerAppService, IConfiguration configuration)
+    public VideoInfoManagerPresentationAppService(IVideoInfoAppService videoInfoAppService, IConfiguration configuration)
     {
         _videoInfoAppService = videoInfoAppService;
-        _videoInfoManagerAppService = videoInfoManagerAppService;
         _configuration = configuration;
         _videoInfoRenameConfigurations = _configuration.GetSection("VideoInfoRenameConfiguration").Get<VideoInfoRenameConfiguration[]>();
         InitializeVideoInfoStatuses();
@@ -45,7 +39,7 @@ public class VideoInfoManagerPresentationAppService : IVideoInfoManagerPresentat
 
         _lastSearch = search;
         _lastSearchData = isVideoName == true
-                     ? _videoInfoManagerAppService.GetManyVideoInfo(search, _videoInfoRenameConfigurations)
+                     ? GetManyVideoInfo(search)
                      : _videoInfoAppService.GetManyContainsNameList(search.ToList());
 
         if (_lastSearchData is not null)
@@ -53,8 +47,8 @@ public class VideoInfoManagerPresentationAppService : IVideoInfoManagerPresentat
             var data = _lastSearchData.Where(c => videoInfoActiveStatuses.Contains(c.StatusToVideoInfoStatusEnum()))
                                       .ToList();
 
-            var multipleAuthors = data.Where(c => _videoInfoManagerAppService.IsMultipleAuthor(c.Name, _videoInfoRenameConfigurations));
-            var singleAuthor = data.Where(c => _videoInfoManagerAppService.IsMultipleAuthor(c.Name, _videoInfoRenameConfigurations) is false);
+            var multipleAuthors = data.Where(c => IsMultipleAuthor(c.Name));
+            var singleAuthor = data.Where(c => IsMultipleAuthor(c.Name) is false);
             var videoInforSearchList = new List<VideoInfoDTO>();
 
             if (singleAuthor.Any())

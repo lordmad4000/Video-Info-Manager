@@ -1,4 +1,4 @@
-﻿namespace VideoInfoManager.Application.Models;
+﻿namespace VideoInfoManager.Presentation.CrossCutting.Models;
 
 public class VideoInfoRenameConfiguration
 {

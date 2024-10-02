@@ -4,7 +4,6 @@ using VideoInfoManager.Application.Interfaces;
 using VideoInfoManager.Domain.Enums;
 using VideoInfoManager.Domain.Interfaces;
 using VideoInfoManager.Domain.Models;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace VideoInfoManager.Application.Services;
 
@@ -40,19 +39,6 @@ public class VideoInfoAppService : IVideoInfoAppService
         _videoInfoRepository.SaveChanges();
 
         SaveLog(logData);
-
-        return true;
-    }
-
-    public bool AddFromString(string file, VideoInfoStatusEnum status)
-    {
-        var videoInfoDTO = new VideoInfoDTO
-        {
-            Name = GetFileNameOnly(file),
-            Status = status.ToString()
-        };
-
-        Add(videoInfoDTO);
 
         return true;
     }
@@ -114,27 +100,6 @@ public class VideoInfoAppService : IVideoInfoAppService
         return VideoInfoDTO.Map(videosInfo);
     }
 
-    public IEnumerable<VideoInfoDTO> GetManyContains(string search, List<VideoInfoStatusEnum> statusToShow)
-    {
-        var videosInfoDto = GetManyContains(search);
-
-        videosInfoDto = videosInfoDto.Where(c => statusToShow.Contains(c.StatusToVideoInfoStatusEnum()));
-
-        return videosInfoDto;
-    }
-
-    public IEnumerable<VideoInfoDTO> GetManyByStatus(VideoInfoStatusEnum status)
-    {
-        var videosInfo = _videoInfoRepository.GetManyByStatus(status);
-        if (videosInfo is null)
-        {
-            return new List<VideoInfoDTO>();
-        }
-
-        return VideoInfoDTO.Map(videosInfo);
-
-    }
-
     public IEnumerable<VideoInfoDTO> GetManyContainsNameList(List<string> nameList)
     {
         var videosInfoDTO = new List<VideoInfoDTO>();
@@ -164,43 +129,6 @@ public class VideoInfoAppService : IVideoInfoAppService
         }
 
         return result;
-    }
-
-    public string NormalizeFileName(string fileName)
-    {
-        if (string.IsNullOrEmpty(fileName) == false)
-        {
-            fileName = GetFileNameOnly(fileName);
-        }
-
-        return fileName;
-    }
-
-    private string GetFileNameOnly(string fileName)
-    {
-        fileName = RemovePath(fileName);
-        fileName = RemoveExtension(fileName);
-
-        return fileName;
-    }
-
-    private string RemovePath(string fileName)
-    {
-        int pos = fileName.LastIndexOf("\\");
-        fileName = fileName.Substring(pos + 1, fileName.Length - pos - 1);
-
-        return fileName;
-    }
-
-    private string RemoveExtension(string fileName)
-    {
-        int pos = fileName.LastIndexOf(".");
-        if (pos > 0)
-        {
-            fileName = fileName.Substring(0, pos);
-        }
-
-        return fileName;
     }
 
     private void SaveLog(string data)

@@ -55,8 +55,7 @@ public static class DependencyInjectionExtensions
 
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
-        return services.AddTransient<IVideoInfoAppService, VideoInfoAppService>()
-                       .AddTransient<IVideoInfoManagerAppService, VideoInfoManagerAppService>();
+        return services.AddTransient<IVideoInfoAppService, VideoInfoAppService>();
     }
 
     public static IServiceCollection AddInfraServices(this IServiceCollection services)

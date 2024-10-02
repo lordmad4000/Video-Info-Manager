@@ -1,5 +1,4 @@
 ﻿using VideoInfoManager.Application.DTOs;
-using VideoInfoManager.Application.Models;
 using VideoInfoManager.Domain.Enums;
 using VideoInfoManager.Presentation.CrossCutting.Models;
 
