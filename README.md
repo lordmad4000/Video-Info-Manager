@@ -1,6 +1,6 @@
 # Video Info Manager
 
-An video information manager for media files.
+An video information manager for media files developed in .NET.
 
 ## Features
 
@@ -18,11 +18,16 @@ CRUD collection items:
 
 - Modify or delete collection items from results list.
 
-Generate item names based on names using custom rules:
+Generate item names based on names using custom rules, example:
 
- - [Paramount Pictures.com / Lucasfilm] Steven Spielberg - (Raiders of the Lost Ark)\
-to\
-Steven Spielberg - Paramount Pictures - Raiders of the Lost Ark
+	[Paramount Pictures.com / Lucasfilm] Steven Spielberg - (Raiders of the Lost Ark)
+	to
+	Steven Spielberg - Paramount Pictures - Raiders of the Lost Ark
+	
+Multiple Front Ends:
+
+- Windows Forms.
+- Windows Presentation Foundation.
 
 Export the collection to a text file.
 
