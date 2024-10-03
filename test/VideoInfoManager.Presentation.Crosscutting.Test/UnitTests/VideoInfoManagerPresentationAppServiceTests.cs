@@ -2,7 +2,9 @@ using Microsoft.Extensions.Configuration;
 using Moq;
 using VideoInfoManager.Application.Interfaces;
 using VideoInfoManager.Application.Services;
+using VideoInfoManager.Domain.Enums;
 using VideoInfoManager.Domain.Interfaces;
+using VideoInfoManager.Presentation.CrossCutting.Models;
 using VideoInfoManager.Presentation.CrossCutting.Services;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -271,8 +273,60 @@ public class VideoInfoManagerPresentationAppServiceTests
         Assert.Empty(result);
     }
 
+    [Fact]
+    public void GetVideoInfoStatusByConfigurationName_Should_Be_Expected()
+    {
+        // Arrange
+        string configurationName = "Pended";
+        VideoInfoStatus expected = new VideoInfoStatus
+        {
+            ConfigurationName = "Pended",
+            StatusName = "Pended",
+            Status = VideoInfoStatusEnum.Pended
+        };
 
+        // Act
+        VideoInfoStatus result = _videoInfoManagerPresentationAppService.GetVideoInfoStatusByConfigurationName(configurationName);
 
+        // Assert
+        Assert.Equal(expected.ConfigurationName, result.ConfigurationName);
+        Assert.Equal(expected.StatusName, result.StatusName);
+        Assert.Equal(expected.Status, result.Status);
+    }
+
+    [Fact]
+    public void GetVideoInfoStatusByConfigurationName_Null_ConfigurationName_Should_Be_Default_VideoInfoStatus()
+    {
+        // Arrange
+        string? configurationName = null;
+        var defaultVideoInfoStatus = new VideoInfoStatus();
+
+        // Act
+#pragma warning disable CS8604 // Posible argumento de referencia nulo
+        VideoInfoStatus result = _videoInfoManagerPresentationAppService.GetVideoInfoStatusByConfigurationName(configurationName);
+#pragma warning restore CS8604 // Posible argumento de referencia nulo
+
+        // Assert
+        Assert.Equal(defaultVideoInfoStatus.ConfigurationName, result.ConfigurationName);
+        Assert.Equal(defaultVideoInfoStatus.StatusName, result.StatusName);
+        Assert.Equal(defaultVideoInfoStatus.Status, result.Status);
+    }
+
+    [Fact]
+    public void GetVideoInfoStatusByConfigurationName_Wrong_ConfigurationName_Should_Be_Default_VideoInfoStatus()
+    {
+        // Arrange
+        string configurationName = "Removed";
+        var defaultVideoInfoStatus = new VideoInfoStatus();
+
+        // Act
+        VideoInfoStatus result = _videoInfoManagerPresentationAppService.GetVideoInfoStatusByConfigurationName(configurationName);
+
+        // Assert
+        Assert.Equal(defaultVideoInfoStatus.ConfigurationName, result.ConfigurationName);
+        Assert.Equal(defaultVideoInfoStatus.StatusName, result.StatusName);
+        Assert.Equal(defaultVideoInfoStatus.Status, result.Status);
+    }
 
     // Pruebas sin realizar aún:
     // Search,
@@ -282,8 +336,6 @@ public class VideoInfoManagerPresentationAppServiceTests
     // GetManyVideoInfo,
     // Update
     // Delete,
-    // GetVideoInfoStatusByConfigurationName,
-    // RemoveFirstItem,
     // GetAllDataOrderByName
 
 
