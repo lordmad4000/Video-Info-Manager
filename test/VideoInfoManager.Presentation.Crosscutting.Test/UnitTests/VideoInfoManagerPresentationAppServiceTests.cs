@@ -4,6 +4,7 @@ using VideoInfoManager.Application.Interfaces;
 using VideoInfoManager.Application.Services;
 using VideoInfoManager.Domain.Interfaces;
 using VideoInfoManager.Presentation.CrossCutting.Services;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace VideoInfoManager.Application.Test.UnitTests;
 
@@ -131,5 +132,49 @@ public class VideoInfoManagerPresentationAppServiceTests
         // Assert
         Assert.Equal<string>(expected, result);
     }
+
+    [Fact]
+    public void NormalizeFileName_Should_Be_Expected()
+    {
+        // Arrange
+        string fileName = @"C:\Media\Videos\George Miller - Warner Bros Pictures - Furiosa A Mad Max Saga.mp40";
+        string expected = "George Miller - Warner Bros Pictures - Furiosa A Mad Max Saga";
+
+        // Act
+        var result = _videoInfoManagerPresentationAppService.NormalizeFileName(fileName);
+
+        // Assert
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void NormalizeFileName_Null_FileName_Should_Be_Null()
+    {
+        // Arrange
+        string? fileName = null;
+
+        // Act
+#pragma warning disable CS8604 // Posible argumento de referencia nulo
+        var result = _videoInfoManagerPresentationAppService.NormalizeFileName(fileName);
+#pragma warning restore CS8604 // Posible argumento de referencia nulo
+
+        // Assert
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public void NormalizeFileName_Null_FileName_Should_Be_Empty()
+    {
+        // Arrange
+        string fileName = "";
+
+        // Act
+        var result = _videoInfoManagerPresentationAppService.NormalizeFileName(fileName);
+
+        // Assert
+        Assert.Empty(result);
+    }
+
+
 
 }
