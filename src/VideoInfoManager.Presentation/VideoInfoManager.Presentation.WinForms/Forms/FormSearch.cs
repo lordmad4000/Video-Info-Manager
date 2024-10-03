@@ -142,9 +142,7 @@ public partial class FormSearch : Form
         }
 
         string result = _videoInfoManagerPresentationAppService.RemoveFirstItem(rtbVideoInfo.Text);
-        string cutText = string.IsNullOrEmpty(result) is true
-                         ? rtbVideoInfo.Text
-                         : rtbVideoInfo.Text.Replace(result, ""); ;
+        string cutText = _videoInfoManagerPresentationAppService.GetFirstItem(rtbVideoInfo.Text);
 
         if (string.IsNullOrEmpty(cutText) is false)
         {

@@ -172,10 +172,8 @@ public class VideoInfoAddDataViewModel : ViewModelBase
             return;
         }
 
+        string cutText = _videoInfoManagerPresentationAppService.GetFirstItem(MultiSearchTextBoxText);
         string result = _videoInfoManagerPresentationAppService.RemoveFirstItem(MultiSearchTextBoxText);
-        string cutText = string.IsNullOrEmpty(result) is true
-                         ? MultiSearchTextBoxText
-                         : MultiSearchTextBoxText.Replace(result, ""); ;
 
         if (string.IsNullOrEmpty(cutText) is false)
         {

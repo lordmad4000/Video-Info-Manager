@@ -259,20 +259,32 @@ public class VideoInfoManagerPresentationAppService : IVideoInfoManagerPresentat
 
     public string RemoveFirstItem(string sourceText)
     {
-        if (String.IsNullOrWhiteSpace(sourceText) is false)
+        if (string.IsNullOrWhiteSpace(sourceText) is false)
         {
-            var splitText = sourceText.Split("\n", StringSplitOptions.RemoveEmptyEntries);
+            var splitText = sourceText.SplitNewLine(StringSplitOptions.RemoveEmptyEntries);
             if (splitText.Length > 0)
             {
                 sourceText = "";
                 for (int i = 1; i < splitText.Length; i++)
                 {
                     sourceText += $"{splitText[i].RemoveNewLine()}{Environment.NewLine}";
-                }                
+                }
             }
         }
 
         return sourceText;
+    }
+
+    public string GetFirstItem(string sourceText)
+    {
+        if (string.IsNullOrWhiteSpace(sourceText))
+        {
+            return sourceText;
+        }
+
+        var splitText = sourceText.SplitNewLine(StringSplitOptions.RemoveEmptyEntries);
+
+        return splitText[0];
     }
 
     public List<VideoInfoDTO>? GetAllDataOrderByName()
