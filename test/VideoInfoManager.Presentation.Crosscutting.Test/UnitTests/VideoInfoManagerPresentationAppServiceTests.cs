@@ -163,7 +163,7 @@ public class VideoInfoManagerPresentationAppServiceTests
     }
 
     [Fact]
-    public void NormalizeFileName_Null_FileName_Should_Be_Empty()
+    public void NormalizeFileName_Empty_FileName_Should_Be_Empty()
     {
         // Arrange
         string fileName = "";
@@ -175,6 +175,67 @@ public class VideoInfoManagerPresentationAppServiceTests
         Assert.Empty(result);
     }
 
+    [Fact]
+    public void GetFirstItem_Should_Be_Expected()
+    {
+        // Arrange
+        string[] source =
+        {
+            "George Miller -Warner Bros Pictures - Furiosa A Mad Max Saga",
+            "Lilly Wachowski, Lana Wachowski - Warner Bros Pictures - The Matrix",
+            "Bobby Farrell, Peter Farrelly - 20th Century Fox - Me, Myself & Irene"
+        };
+        string sourceText = string.Join(Environment.NewLine, source);
+        string expected = "George Miller -Warner Bros Pictures - Furiosa A Mad Max Saga";
+
+        // Act
+        var result = _videoInfoManagerPresentationAppService.GetFirstItem(sourceText);
+
+        // Assert
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void GetFirstItem_Null_FileName_Should_Be_Null()
+    {
+        // Arrange
+        string? sourceText = null;
+
+        // Act
+#pragma warning disable CS8604 // Posible argumento de referencia nulo
+        var result = _videoInfoManagerPresentationAppService.GetFirstItem(sourceText);
+#pragma warning restore CS8604 // Posible argumento de referencia nulo
+
+        // Assert
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public void GetFirstItem_Empty_FileName_Should_Be_Empty()
+    {
+        // Arrange
+        string sourceText = "";
+
+        // Act
+        var result = _videoInfoManagerPresentationAppService.GetFirstItem(sourceText);
+
+        // Assert
+        Assert.Empty(result);
+    }
+
+
+
+    // Pruebas sin realizar aún:
+    // Search,
+    // LastSearch,
+    // GetResults,
+    // ProcessData,
+    // GetManyVideoInfo,
+    // Update
+    // Delete,
+    // GetVideoInfoStatusByConfigurationName,
+    // RemoveFirstItem,
+    // GetAllDataOrderByName
 
 
 }
