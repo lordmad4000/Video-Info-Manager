@@ -196,7 +196,7 @@ public class VideoInfoManagerPresentationAppServiceTests
     }
 
     [Fact]
-    public void GetFirstItem_Null_FileName_Should_Be_Null()
+    public void GetFirstItem_Null_SourceText_Should_Be_Null()
     {
         // Arrange
         string? sourceText = null;
@@ -211,7 +211,7 @@ public class VideoInfoManagerPresentationAppServiceTests
     }
 
     [Fact]
-    public void GetFirstItem_Empty_FileName_Should_Be_Empty()
+    public void GetFirstItem_Empty_SourceText_Should_Be_Empty()
     {
         // Arrange
         string sourceText = "";
@@ -222,6 +222,55 @@ public class VideoInfoManagerPresentationAppServiceTests
         // Assert
         Assert.Empty(result);
     }
+
+    [Fact]
+    public void RemoveFirstItem_Should_Be_Expected()
+    {
+        // Arrange
+        string[] source =
+        {
+            "George Miller -Warner Bros Pictures - Furiosa A Mad Max Saga",
+            "Lilly Wachowski, Lana Wachowski - Warner Bros Pictures - The Matrix",
+            "Bobby Farrell, Peter Farrelly - 20th Century Fox - Me, Myself & Irene"
+        };
+        string sourceText = string.Join(Environment.NewLine, source);
+        string expected = @$"Lilly Wachowski, Lana Wachowski - Warner Bros Pictures - The Matrix{Environment.NewLine}Bobby Farrell, Peter Farrelly - 20th Century Fox - Me, Myself & Irene{Environment.NewLine}";
+
+        // Act
+        var result = _videoInfoManagerPresentationAppService.RemoveFirstItem(sourceText);
+
+        // Assert
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void RemoveFirstItem_Null_SourceText_Be_Null()
+    {
+        // Arrange
+        string? sourceText = null;
+
+        // Act
+#pragma warning disable CS8604 // Posible argumento de referencia nulo
+        var result = _videoInfoManagerPresentationAppService.RemoveFirstItem(sourceText);
+#pragma warning restore CS8604 // Posible argumento de referencia nulo
+
+        // Assert
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public void RemoveFirstItem_Empty_SourceText_Be_Empty()
+    {
+        // Arrange
+        string sourceText = "";
+
+        // Act
+        var result = _videoInfoManagerPresentationAppService.RemoveFirstItem(sourceText);
+
+        // Assert
+        Assert.Empty(result);
+    }
+
 
 
 
