@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using VideoInfoManager.Application.DTOs;
-using VideoInfoManager.Application.Interfaces;
+using VideoInfoManager.Application.UseCases;
 using VideoInfoManager.Domain.Enums;
 using VideoInfoManager.Presentation.Crosscutting.Extensions;
 using VideoInfoManager.Presentation.CrossCutting.Models;
@@ -16,14 +16,14 @@ public class VideoInfoManagerPresentationAppService : IVideoInfoManagerPresentat
     private VideoInfoDTO? _videoInfoSelected { get; set; } = null;
     private List<VideoInfoDTO> _results = new List<VideoInfoDTO>();
 
-    private readonly IVideoInfoAppService _videoInfoAppService;
+    private readonly VideoInfoUseCases _videoInfoUseCases;
     private readonly IConfiguration _configuration;
     private readonly VideoInfoRenameConfiguration[]? _videoInfoRenameConfigurations;
 
 
-    public VideoInfoManagerPresentationAppService(IVideoInfoAppService videoInfoAppService, IConfiguration configuration)
+    public VideoInfoManagerPresentationAppService(VideoInfoUseCases videoInfoUseCases, IConfiguration configuration)
     {
-        _videoInfoAppService = videoInfoAppService;
+        _videoInfoUseCases = videoInfoUseCases;
         _configuration = configuration;
         _videoInfoRenameConfigurations = _configuration.GetSection("VideoInfoRenameConfiguration").Get<VideoInfoRenameConfiguration[]>();
         InitializeVideoInfoStatuses();
@@ -40,7 +40,7 @@ public class VideoInfoManagerPresentationAppService : IVideoInfoManagerPresentat
         _lastSearch = search;
         _lastSearchData = isVideoName == true
                      ? GetManyVideoInfo(search)
-                     : _videoInfoAppService.GetManyContainsNameList(search.ToList());
+                     : _videoInfoUseCases.GetAllVideoInfoContainsNameListQueryHandler.Handle(search.ToList());
 
         if (_lastSearchData is not null)
         {
@@ -80,7 +80,7 @@ public class VideoInfoManagerPresentationAppService : IVideoInfoManagerPresentat
             }
             if (files != null)
             {
-                results = _videoInfoAppService.AddManyFromStringArray(files, videoInfoStatus);
+                results = _videoInfoUseCases.CreateManyVideoInfoCommandHandler.Handle(files, videoInfoStatus);
             }
         }
         catch (Exception ex)
@@ -95,14 +95,14 @@ public class VideoInfoManagerPresentationAppService : IVideoInfoManagerPresentat
     {
         var authors = GetOnlyAuthors(videoInfoNames).ToList();
 
-        return _videoInfoAppService.GetManyContainsNameList(authors);
+        return _videoInfoUseCases.GetAllVideoInfoContainsNameListQueryHandler.Handle(authors);
     }
 
     public bool Update(VideoInfoDTO videoInfoDTO)
     {
         videoInfoDTO.Status = GetVideoInfoStatusByConfigurationName(videoInfoDTO.Status).StatusName;
 
-        return _videoInfoAppService.Update(videoInfoDTO);
+        return _videoInfoUseCases.UpdateVideoInfoCommandHandler.Handle(videoInfoDTO);
     }
 
     public bool Delete(VideoInfoDTO videoInfoDTO)
@@ -112,7 +112,7 @@ public class VideoInfoManagerPresentationAppService : IVideoInfoManagerPresentat
             return false;
         }
 
-        return _videoInfoAppService.Remove(videoInfoDTO.Id);
+        return _videoInfoUseCases.DeleteVideoInfoCommandHandler.Handle(videoInfoDTO.Id);
     }
 
     public string NormalizeFileName(string fileName)
@@ -289,7 +289,7 @@ public class VideoInfoManagerPresentationAppService : IVideoInfoManagerPresentat
 
     public List<VideoInfoDTO>? GetAllDataOrderByName()
     {
-        var videoInfoDTOs = _videoInfoAppService.GetManyContains("");
+        var videoInfoDTOs = _videoInfoUseCases.GetAllVideoInfoContainsQueryHandler.Handle("");
 
         if (videoInfoDTOs is null || videoInfoDTOs.Count() == 0)
         {

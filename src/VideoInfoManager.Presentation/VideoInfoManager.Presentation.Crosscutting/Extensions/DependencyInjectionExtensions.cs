@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using VideoInfoManager.Application.Interfaces;
-using VideoInfoManager.Application.Services;
+using VideoInfoManager.Application.UseCases;
+using VideoInfoManager.Application.UseCases.VideoInfoCommands;
+using VideoInfoManager.Application.UseCases.VideoInfoQueries;
 using VideoInfoManager.Domain.Interfaces;
 using VideoInfoManager.Infra.Context;
 using VideoInfoManager.Infra.Repositories;
@@ -55,7 +56,13 @@ public static class DependencyInjectionExtensions
 
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
-        return services.AddTransient<IVideoInfoAppService, VideoInfoAppService>();
+        return services.AddTransient<VideoInfoUseCases>()
+                       .AddTransient<CreateVideoInfoCommandHandler>()
+                       .AddTransient<UpdateVideoInfoCommandHandler>()
+                       .AddTransient<CreateManyVideoInfoCommandHandler>()
+                       .AddTransient<DeleteVideoInfoCommandHandler>()
+                       .AddTransient<GetAllVideoInfoContainsNameListQueryHandler>()
+                       .AddTransient<GetAllVideoInfoContainsQueryHandler>();
     }
 
     public static IServiceCollection AddInfraServices(this IServiceCollection services)

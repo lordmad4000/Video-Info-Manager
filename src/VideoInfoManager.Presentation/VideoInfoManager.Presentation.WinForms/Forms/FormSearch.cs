@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.Text;
-using VideoInfoManager.Application.Interfaces;
 using VideoInfoManager.Application.DTOs;
 using VideoInfoManager.Presentation.WinForms.Helpers;
 using VideoInfoManager.Domain.Enums;
@@ -15,12 +14,10 @@ public partial class FormSearch : Form
     private const int MinSearchLength = 3;
     private VideoInfoDTO? _videoInfoSelected { get; set; } = null;
 
-    private readonly IVideoInfoAppService _videoInfoAppService;
     private readonly IVideoInfoManagerPresentationAppService _videoInfoManagerPresentationAppService;
 
-    public FormSearch(IVideoInfoAppService videoInfoAppService, IVideoInfoManagerPresentationAppService videoInfoManagerPresentationAppService)
+    public FormSearch(IVideoInfoManagerPresentationAppService videoInfoManagerPresentationAppService)
     {
-        _videoInfoAppService = videoInfoAppService;
         _videoInfoManagerPresentationAppService = videoInfoManagerPresentationAppService;
         InitializeComponent();
         InitializeStatusComponents();
@@ -52,7 +49,7 @@ public partial class FormSearch : Form
 
         if (MessageBox.Show($"Update Data to Data Base?", "Update Data", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
         {
-            if (_videoInfoAppService.Update(videoInfoDTO) == true)
+            if (_videoInfoManagerPresentationAppService.Update(videoInfoDTO) == true)
             {
                 MessageBox.Show($"{videoInfoDTO.Name} Updated.");
                 ExecuteLastSearch();
@@ -293,7 +290,7 @@ public partial class FormSearch : Form
         if (_videoInfoSelected is null)
             return;
 
-        if (_videoInfoAppService.Remove(_videoInfoSelected.Id) == true)
+        if (_videoInfoManagerPresentationAppService.Delete(_videoInfoSelected) == true)
         {
             MessageBox.Show($"{_videoInfoSelected.Name} Removed.");
             ExecuteLastSearch();

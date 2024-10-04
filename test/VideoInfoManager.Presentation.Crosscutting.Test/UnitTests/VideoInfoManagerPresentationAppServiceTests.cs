@@ -1,30 +1,43 @@
 using Microsoft.Extensions.Configuration;
 using Moq;
-using VideoInfoManager.Application.Interfaces;
-using VideoInfoManager.Application.Services;
+using VideoInfoManager.Application.UseCases;
+using VideoInfoManager.Application.UseCases.VideoInfoCommands;
+using VideoInfoManager.Application.UseCases.VideoInfoQueries;
 using VideoInfoManager.Domain.Enums;
 using VideoInfoManager.Domain.Interfaces;
 using VideoInfoManager.Presentation.CrossCutting.Models;
 using VideoInfoManager.Presentation.CrossCutting.Services;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace VideoInfoManager.Application.Test.UnitTests;
 
 public class VideoInfoManagerPresentationAppServiceTests
 {
     private readonly Mock<IVideoInfoRepository> _mockVideoInfoRepository;
-    private readonly IVideoInfoAppService _videoInfoAppService;
     private readonly IVideoInfoManagerPresentationAppService _videoInfoManagerPresentationAppService;
     private readonly IConfiguration _configuration;
 
     public VideoInfoManagerPresentationAppServiceTests()
     {
-        _mockVideoInfoRepository = new Mock<IVideoInfoRepository>();
-        _videoInfoAppService = new VideoInfoAppService(_mockVideoInfoRepository.Object);
         _configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                                                    .Build();
 
-        _videoInfoManagerPresentationAppService = new VideoInfoManagerPresentationAppService(_videoInfoAppService, _configuration);
+        _mockVideoInfoRepository = new Mock<IVideoInfoRepository>();
+
+        var createManyVideoInfoCommandHandler = new CreateManyVideoInfoCommandHandler(_mockVideoInfoRepository.Object);
+        var createVideoInfoCommandHandler = new CreateVideoInfoCommandHandler(_mockVideoInfoRepository.Object);
+        var deleteVideoInfoCommandHandler = new DeleteVideoInfoCommandHandler(_mockVideoInfoRepository.Object);
+        var updateVideoInfoCommandHandler = new UpdateVideoInfoCommandHandler(_mockVideoInfoRepository.Object);
+        var getAllVideoInfoContainsNameListQueryHandler = new GetAllVideoInfoContainsNameListQueryHandler(_mockVideoInfoRepository.Object);
+        var getAllVideoInfoContainsQueryHandler = new GetAllVideoInfoContainsQueryHandler(_mockVideoInfoRepository.Object);
+
+        var videoInfoUseCases = new VideoInfoUseCases(createManyVideoInfoCommandHandler,
+                                                      createVideoInfoCommandHandler,
+                                                      deleteVideoInfoCommandHandler,
+                                                      updateVideoInfoCommandHandler,
+                                                      getAllVideoInfoContainsNameListQueryHandler,
+                                                      getAllVideoInfoContainsQueryHandler);
+
+        _videoInfoManagerPresentationAppService = new VideoInfoManagerPresentationAppService(videoInfoUseCases, _configuration);
     }
 
     [Theory]

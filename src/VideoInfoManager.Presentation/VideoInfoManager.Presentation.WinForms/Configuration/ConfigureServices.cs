@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using VideoInfoManager.Application.Interfaces;
-using VideoInfoManager.Application.Services;
 using VideoInfoManager.Domain.Interfaces;
 using VideoInfoManager.Infra.Repositories;
 using VideoInfoManager.Presentation.WinForms.Forms;
@@ -24,10 +22,6 @@ public static class ConfigureServices
 
     public static IServiceCollection AddServices(this IServiceCollection services)
     {
-        services.AddScoped<FormSearch>();
-        services.AddScoped<IVideoInfoAppService, VideoInfoAppService>();
-        services.AddScoped<IVideoInfoRepository, VideoInfoRepository>();
-
-        return services;
+        return services.AddScoped<FormSearch>();
     }
 }
