@@ -10,6 +10,7 @@ namespace VideoInfoManager.Presentation.CrossCutting.Services;
 
 public class VideoInfoManagerPresentationAppService : IVideoInfoManagerPresentationAppService
 {
+    private const int MinAuthorName = 2;
     private List<VideoInfoStatus> _videoInfoStatuses = new List<VideoInfoStatus>();
     private string[]? _lastSearch { get; set; } = null;
     private IEnumerable<VideoInfoDTO>? _lastSearchData { get; set; } = null;
@@ -144,7 +145,24 @@ public class VideoInfoManagerPresentationAppService : IVideoInfoManagerPresentat
             string name = GetNameOrEmpty(item, separator);
             if (name != "")
             {
-                authors.Add(name);
+                if (name.Contains(","))
+                {
+                    string[]? manyAuthors = name.Split(",", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                    if (manyAuthors != null)
+                    {
+                        foreach (var author in manyAuthors)
+                        {
+                            if (author.Length > MinAuthorName)
+                            {
+                                authors.Add(author);
+                            }
+                        }
+                    }
+                }
+                else if (name.Length > MinAuthorName)
+                {
+                    authors.Add(name);
+                }
             }
         }
 
