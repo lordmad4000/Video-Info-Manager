@@ -36,7 +36,17 @@ namespace VideoInfoManager.Presentation.Wpf.Windows
         }
 
         private void WindowLoaded(object sender, RoutedEventArgs e)
-        {            
+        { 
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            MessageBoxResult result = MessageBox.Show("Are you sure you want to close the application?", "Confirm close", MessageBoxButton.YesNo);
+
+            if (result == MessageBoxResult.No)
+            {
+                e.Cancel = true;
+            }
         }
 
     }

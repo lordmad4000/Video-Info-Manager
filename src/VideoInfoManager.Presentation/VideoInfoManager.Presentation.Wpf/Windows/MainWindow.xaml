@@ -13,6 +13,7 @@
         Width="{Binding Width, Mode=TwoWay}"
         Top="{Binding Top, Mode=TwoWay}"
         Left="{Binding Left, Mode=TwoWay}"        
+        Closing="Window_Closing"
         Loaded="WindowLoaded">
     <DockPanel>
         <StatusBar DockPanel.Dock="Bottom">
