@@ -94,9 +94,9 @@ public class VideoInfoManagerPresentationAppService : IVideoInfoManagerPresentat
 
     public IEnumerable<VideoInfoDTO> GetManyVideoInfo(ICollection<string> videoInfoNames)
     {
-        var authors = GetOnlyAuthors(videoInfoNames).ToList();
+        var authors = GetOnlyAuthors(videoInfoNames);
 
-        return _videoInfoUseCases.GetAllVideoInfoContainsNameListQueryHandler.Handle(authors);
+        return _videoInfoUseCases.GetAllVideoInfoContainsNameListQueryHandler.Handle(authors.Distinct().ToList());
     }
 
     public bool Update(VideoInfoDTO videoInfoDTO)

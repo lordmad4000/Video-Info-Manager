@@ -34,7 +34,8 @@ public class VideoInfoAddDataViewModel : ViewModelBase
     public ICommand CutFirstFromMultiSearchTextBoxCommand { get; private set; } = new CommandHandler(c => c.ToString(), _ => true);
     public ICommand SearchCommand { get; private set; } = new CommandHandler(c => c.ToString(), _ => true);
     public ICommand ClearMultiSearchTextBoxCommand { get; private set; } = new CommandHandler(c => c.ToString(), _ => true);
-    public ICommand ExportDataCommand { get; private set; } = new CommandHandler(c => c.ToString(), _ => true);    
+    public ICommand ExportDataCommand { get; private set; } = new CommandHandler(c => c.ToString(), _ => true);
+    public ICommand ExportLastSearchCommand { get; private set; } = new CommandHandler(c => c.ToString(), _ => true);
 
     private string _multiSearchTextBoxText = string.Empty;
     public string MultiSearchTextBoxText
@@ -243,6 +244,40 @@ public class VideoInfoAddDataViewModel : ViewModelBase
         }
     }
 
+    private void ExportLastSearch(object parameter)
+    {
+        var videoInfoList = _videoInfoSearchViewModel.VideoInfoResults = new ObservableCollection<VideoInfoDTO>(_videoInfoManagerPresentationAppService.GetResults());
+
+        if (videoInfoList is null || videoInfoList.Count() == 0)
+        {
+            MessageBox.Show("No data found.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        var saveFileDialog = new SaveFileDialog();
+        saveFileDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
+        saveFileDialog.DefaultExt = "txt";
+        saveFileDialog.RestoreDirectory = true;
+
+        if (saveFileDialog.ShowDialog() is true)
+        {
+            var path = saveFileDialog.FileName;
+            using (var fs = new FileStream(path, FileMode.Create))
+            {
+                using (var sw = new StreamWriter(fs))
+                {
+                    foreach (var videoInfo in videoInfoList)
+                    {
+                        string item = $"({videoInfo.Status}) {videoInfo.Name}";
+                        sw.WriteLine(item);
+                    }
+                }
+            }
+            MessageBox.Show("Data exported.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+    }
+
+
     private void AddDataFromClipboard(object parameter)
     {
         if (Clipboard.ContainsText())
@@ -362,6 +397,7 @@ public class VideoInfoAddDataViewModel : ViewModelBase
         ClearMultiSearchTextBoxCommand = new CommandHandler(ClearMultiSearchTextBox, _ => true);
         SearchCommand = new CommandHandler(SearchByAuthor, _ => true);
         ExportDataCommand = new CommandHandler(ExportData, _ => true);
+        ExportLastSearchCommand = new CommandHandler(ExportLastSearch, _ => true);
     }
 
 }
